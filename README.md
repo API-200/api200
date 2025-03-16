@@ -15,8 +15,11 @@ This repository contains the necessary files and instructions to self-host the A
 - Fallback responses
 
 ✔️ Unified API Dashboard
+
 ✔️ In-browser Swagger integration
+
 ✔️ Import endpoints from OpenAPI and Postman
+
 ✔️ Logs
   
 For more details check https://api200.co
