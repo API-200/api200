@@ -1,6 +1,25 @@
-# API-200 Self-Hosted
+# API 200 Self-hosted
 
-This repository contains the necessary files and instructions to self-host the API-200 application.
+This repository contains the necessary files and instructions to self-host the API 200 application.
+
+##  What is API 200 ?
+
+**One Gateway for All Your Third-Party Services!**
+
+✔️ One-Click API Setup:
+- Auth
+- Caching
+- Retries
+- Mocking
+- Response transform
+- Fallback responses
+
+✔️ Unified API Dashboard
+✔️ In-browser Swagger integration
+✔️ Import endpoints from OpenAPI and Postman
+✔️ Logs
+  
+For more details check https://api200.co
 
 ## Prerequisites
 
