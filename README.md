@@ -89,6 +89,3 @@ Once all services are running, you can access:
 - API-200 Frontend: `http://<your-hostname-or-ip>:3000`
 - API-200 Api Handler: `http://<your-hostname-or-ip>:8080`
 
-## License
-
-Apache License 2.0

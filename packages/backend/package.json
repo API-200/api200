@@ -1,0 +1,53 @@
+{
+  "name": "api200-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register src/index.ts",
+    "build": "tsc --sourceMap && tsc-alias",
+    "start": "node --enable-source-maps dist/index.js",
+    "start:prod": "if [ \"$IS_SELFHOSTED\" = \"true\" ]; then pnpm run supabase:m; fi && node dist/index.js",
+    "supabase:generate": "pnpm dlx supabase gen types typescript --project-id --schema public > src/utils/database.types.ts",
+    "supabase:m": "pnpm dlx supabase migration up --db-url postgres://postgres.$POOLER_TENANT_ID:$POSTGRES_PASSWORD@supabase-pooler:5432/postgres",
+    "lint": "eslint ",
+    "lint:fix": "eslint  --fix",
+    "prettier:fix": "prettier --write src"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@keyv/redis": "^4.2.0",
+    "@koa/cors": "^5.0.0",
+    "@sentry/node": "^9.1.0",
+    "@sentry/profiling-node": "^9.1.0",
+    "@supabase/supabase-js": "^2.48.1",
+    "axios": "^1.7.9",
+    "cache-manager": "^6.4.0",
+    "dotenv": "^16.4.7",
+    "jsonwebtoken": "^9.0.2",
+    "koa": "^2.15.3",
+    "koa-bodyparser": "^4.4.1",
+    "koa-router": "^13.0.1",
+    "prettier": "^3.4.2",
+    "tsconfig-paths": "^4.2.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@types/jsonwebtoken": "^9.0.8",
+    "@types/koa": "^2.15.0",
+    "@types/koa-bodyparser": "^4.3.12",
+    "@types/koa-router": "^7.4.8",
+    "@types/koa__cors": "^5.0.0",
+    "@types/node": "^22.13.0",
+    "eslint": "^9.19.0",
+    "supabase": "^2.15.8",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.10",
+    "typescript": "^5.7.3",
+    "typescript-eslint": "^8.23.0"
+  }
+}

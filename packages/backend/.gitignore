@@ -1,0 +1,23 @@
+# Node modules and pnpm lock file
+node_modules/
+
+# Build output directory
+dist/
+
+# Environment variables (DO NOT commit sensitive information)
+.env
+.env.*.local
+
+# Log files
+logs/
+*.log
+
+# Operating system files
+.DS_Store
+
+# IDE or editor directories and files
+.vscode/
+.idea/
+
+# Temporary files
+tmp/
