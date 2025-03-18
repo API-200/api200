@@ -32,9 +32,9 @@ export function Logs({ endpoint }: Props) {
     const fetchLogs = useCallback(
         async (isLoadMore = false) => {
             if (isLoadMore) {
-                setLoadingMore(true)
+                setLoadingMore(true);
             } else {
-                setLoading(true)
+                setLoading(true);
             }
 
             try {
@@ -44,34 +44,36 @@ export function Logs({ endpoint }: Props) {
                     .eq("endpoint_id", endpoint.id)
                     .order("started_at", { ascending: false })
                     .range(isLoadMore ? logs.length : 0, isLoadMore ? logs.length + PAGE_SIZE : PAGE_SIZE)
-                    .limit(PAGE_SIZE + 1)
+                    .limit(PAGE_SIZE + 1);
 
                 if (error) {
-                    console.error("Error fetching logs:", error)
-                    setHasMore(false)
+                    console.error("Error fetching logs:", error);
+                    setHasMore(false);
                 } else {
-                    setHasMore(data.length > PAGE_SIZE)
-                    const newLogs = data.slice(0, PAGE_SIZE)
+                    setHasMore(data.length > PAGE_SIZE);
+                    const newLogs = data.slice(0, PAGE_SIZE);
 
-                    if (isLoadMore) {
-                        setLogs((prevLogs) => [...prevLogs, ...newLogs.map((log) => ({ ...log, endpoint }))])
-                    } else {
-                        setLogs(newLogs.map((log) => ({ ...log, endpoint })))
-                    }
+                    setLogs(prevLogs => {
+                        if (isLoadMore) {
+                            return [...prevLogs, ...newLogs.map(log => ({ ...log, endpoint }))];
+                        } else {
+                            return newLogs.map(log => ({ ...log, endpoint }));
+                        }
+                    });
                 }
             } catch (error) {
-                console.error("Error fetching logs:", error)
-                setHasMore(false)
+                console.error("Error fetching logs:", error);
+                setHasMore(false);
             }
 
             if (isLoadMore) {
-                setLoadingMore(false)
+                setLoadingMore(false);
             } else {
-                setLoading(false)
+                setLoading(false);
             }
         },
-        [endpoint.id, logs.length, supabase, endpoint],
-    )
+        [endpoint.id, supabase, endpoint],
+    );
 
     const refreshLogs = () => {
         fetchLogs()
