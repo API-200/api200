@@ -1,5 +1,5 @@
-import { Skeleton } from "../../../../components/ui/skeleton"
-import { Button } from "../../../../components/ui/button"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
 import { PlusCircle } from "lucide-react"
 import {
     Breadcrumb,
@@ -7,9 +7,9 @@ import {
     BreadcrumbLink,
     BreadcrumbList,
     BreadcrumbSeparator,
-} from "../../../../components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb"
 import { ChevronRight } from "lucide-react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../../components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function Loading() {
     return (

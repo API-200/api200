@@ -1,11 +1,11 @@
 "use client"
 
 import type { ColumnDef } from "@tanstack/react-table"
-import { Badge } from "../../../../../../../../components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
-import { MethodBadge } from "../../../../../../../../components/MethodBadge";
-import { StatusBadge } from "../../../../../../../../components/StatusBadge";
-import { Tables } from "../../../../../../../../utils/supabase/database.types";
+import { MethodBadge } from "@/components/MethodBadge";
+import { StatusBadge } from "@/components/StatusBadge";
+import { Tables } from "@/utils/supabase/database.types";
 
 export const columns: ColumnDef<Tables<'logs'> & { endpoint: Tables<'endpoints'> }>[] = [
     {

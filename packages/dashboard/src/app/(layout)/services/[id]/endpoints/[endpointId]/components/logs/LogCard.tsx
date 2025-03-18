@@ -1,13 +1,13 @@
 import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "../../../../../../../../components/ui/card"
-import { Button } from "../../../../../../../../components/ui/button"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "../../../../../../../../components/ui/accordion"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Copy, CopyCheck, X } from "lucide-react"
-import type { Tables } from "../../../../../../../../utils/supabase/database.types"
+import type { Tables } from "@/utils/supabase/database.types"
 import { format } from "date-fns"
-import { MethodBadge } from "../../../../../../../../components/MethodBadge"
-import { StatusBadge } from "../../../../../../../../components/StatusBadge"
-import { Badge } from "../../../../../../../../components/ui/badge"
+import { MethodBadge } from "@/components/MethodBadge"
+import { StatusBadge } from "@/components/StatusBadge"
+import { Badge } from "@/components/ui/badge"
 
 type LogCardProps = {
     log: Tables<"logs"> & { endpoint: Tables<"endpoints"> }

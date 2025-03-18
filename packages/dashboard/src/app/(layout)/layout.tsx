@@ -1,7 +1,7 @@
-import { AppSidebar } from "./components/AppSidebar"
-import { SidebarProvider } from '../../components/ui/sidebar'
+import { AppSidebar } from "@/app/(layout)/components/AppSidebar"
+import { SidebarProvider } from '@/components/ui/sidebar'
 import { redirect } from 'next/navigation'
-import {createClient} from "../../utils/supabase/server";
+import {createClient} from "@/utils/supabase/server";
 
 export default async function RootLayout({
                                              children,

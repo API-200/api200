@@ -1,4 +1,4 @@
-import { createClient } from "../../../../../../utils/supabase/server";
+import { createClient } from "@/utils/supabase/server";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -6,14 +6,14 @@ import {
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator
-} from "../../../../../../components/ui/breadcrumb";
+} from "@/components/ui/breadcrumb";
 import { ChevronRight, Construction } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../../../../../components/ui/tabs";
-import { EndpointHeader } from "./components/EndpointHeader";
-import CodeExample from "./components/CodeExample";
-import { Logs } from "./components/logs/LogViewer";
-import { CardDescription, CardTitle } from "../../../../../../components/ui/card";
-import Settings from 'src/app/(layout)/services/[id]/endpoints/[endpointId]/components/SettingsTab';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EndpointHeader } from "@/app/(layout)/services/[id]/endpoints/[endpointId]/components/EndpointHeader";
+import CodeExample from "@/app/(layout)/services/[id]/endpoints/[endpointId]/components/CodeExample";
+import { Logs } from "@/app/(layout)/services/[id]/endpoints/[endpointId]/components/logs/LogViewer";
+import { CardDescription, CardTitle } from "@/components/ui/card";
+import Settings from './components/SettingsTab';
 import { env } from "next-runtime-env";
 
 type Args = {

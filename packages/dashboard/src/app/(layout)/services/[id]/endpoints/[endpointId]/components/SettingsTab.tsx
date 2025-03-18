@@ -5,21 +5,21 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
-import { Button } from "../../../../../../../components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../../../../../components/ui/card";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../../../../../../../components/ui/form";
-import { Input } from "../../../../../../../components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../../../components/ui/select";
-import { Switch } from "../../../../../../../components/ui/switch";
-import { VerticalMenuTabs } from "../../../../../../../components/ui/vertical-menu-tabs";
-import { createClient } from '../../../../../../../utils/supabase/client';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { VerticalMenuTabs } from "@/components/ui/vertical-menu-tabs";
+import { createClient } from '@/utils/supabase/client';
 import { Loader2 } from 'lucide-react';
-import { Tables } from '../../../../../../../utils/supabase/database.types';
+import { Tables } from '@/utils/supabase/database.types';
 import { toast } from "sonner";
-import CodeEditor from '../../../../../../../components/ui/code-editor';
-import DeleteEndpointForm from 'src/app/(layout)/services/[id]/endpoints/[endpointId]/components/DeleteEndpointForm';
-import haveSameRouteParams from '../../../../../../../utils/haveSameRouteParams';
-import {endpointSchema} from "../../../../../../../utils/validation/endpointsSchema";
+import CodeEditor from '@/components/ui/code-editor';
+import DeleteEndpointForm from './DeleteEndpointForm';
+import haveSameRouteParams from '@/utils/haveSameRouteParams';
+import {endpointSchema} from "@/utils/validation/endpointsSchema";
 
 const methods = [
     { id: "GET", name: "GET" },

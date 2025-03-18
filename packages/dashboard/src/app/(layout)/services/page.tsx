@@ -1,13 +1,13 @@
-import {createClient} from "../../../utils/supabase/server";
-import {Button} from "../../../components/ui/button"
-import {Card, CardDescription, CardHeader, CardTitle} from "../../../components/ui/card"
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "../../../components/ui/table"
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "../../../components/ui/tabs"
+import {createClient} from "@/utils/supabase/server";
+import {Button} from "@/components/ui/button"
+import {Card, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import Link from "next/link";
 import {Grid2x2, TableOfContents} from "lucide-react";
-import {ColorSquare} from "../../../components/ColorSquare";
-import {ServicePageHeader} from "./components/PageHeader";
-import {NoServicesData} from "./components/NoServicesData";
+import {ColorSquare} from "@/components/ColorSquare";
+import {ServicePageHeader} from "@/app/(layout)/services/components/PageHeader";
+import {NoServicesData} from "@/app/(layout)/services/components/NoServicesData";
 
 
 export default async function PrivatePage() {

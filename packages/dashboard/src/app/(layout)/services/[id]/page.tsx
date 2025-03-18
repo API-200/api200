@@ -1,5 +1,5 @@
-import {createClient} from "../../../../utils/supabase/server";
-import {ServiceHeader} from "./components/ServiceHeader";
+import {createClient} from "@/utils/supabase/server";
+import {ServiceHeader} from "@/app/(layout)/services/[id]/components/ServiceHeader";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -7,12 +7,12 @@ import {
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator
-} from "../../../../components/ui/breadcrumb";
+} from "@/components/ui/breadcrumb";
 import {ChevronRight, Construction} from "lucide-react";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "../../../../components/ui/tabs";
-import {EndpointsTab} from "src/app/(layout)/services/[id]/components/EndpointsTab";
-import {APIServiceForm} from "../../../../components/forms/APIServiceForm";
-import DeleteServiceForm from "../../../../components/forms/DeleteServiceForm";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {EndpointsTab} from "./components/EndpointsTab";
+import {APIServiceForm} from "@/components/forms/APIServiceForm";
+import DeleteServiceForm from "@/components/forms/DeleteServiceForm";
 
 type Args = {
     params: Promise<{ id: string }>

@@ -1,13 +1,13 @@
 "use client"
 
 import {useRef, useState} from "react"
-import {Button} from "../../../../../components/ui/button"
-import {Card, CardDescription, CardHeader, CardTitle} from "../../../../../components/ui/card"
+import {Button} from "@/components/ui/button"
+import {Card, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {AlertCircle, FileJson, FileSymlink} from "lucide-react"
 import {captureException} from "@sentry/nextjs"
-import {Alert, AlertDescription, AlertTitle} from "../../../../../components/ui/alert"
-import {ParsedSwaggerResult, parseSwagger} from "../parseSwagger";
-import {parsePostman} from "../parsePostman";
+import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert"
+import {ParsedSwaggerResult, parseSwagger} from "@/app/(layout)/services/import/parseSwagger";
+import {parsePostman} from "@/app/(layout)/services/import/parsePostman";
 
 
 interface ImportOptionsProps {

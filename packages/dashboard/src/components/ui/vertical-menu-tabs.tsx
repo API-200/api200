@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Menubar, MenubarMenu, MenubarTrigger } from "./menubar";
-import { Tabs, TabsContent } from "./tabs";
+import { Menubar, MenubarMenu, MenubarTrigger } from "@/components/ui/menubar";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 
 interface MenuItem {
     label: string | React.ReactNode;

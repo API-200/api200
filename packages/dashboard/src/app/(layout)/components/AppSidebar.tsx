@@ -13,12 +13,12 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-} from "../../../components/ui/sidebar"
-import {UsageProgressBar} from "src/app/(layout)/components/UsageProgressBar"
-import {UserSection} from "src/app/(layout)/components/UserSection"
-import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from "../../../components/ui/dropdown-menu"
-import {GiveFeedbackLink} from "src/app/(layout)/components/GiveFeedbackLink"
-import FEATURES from "../../../config/features";
+} from "@/components/ui/sidebar"
+import {UsageProgressBar} from "./UsageProgressBar"
+import {UserSection} from "./UserSection"
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,} from "@/components/ui/dropdown-menu"
+import {GiveFeedbackLink} from "./GiveFeedbackLink"
+import FEATURES from "@/config/features";
 
 export function AppSidebar() {
     const pathname = usePathname()

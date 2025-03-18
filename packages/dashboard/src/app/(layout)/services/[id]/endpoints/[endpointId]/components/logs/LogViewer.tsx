@@ -1,16 +1,16 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { DataTable } from "src/app/(layout)/services/[id]/endpoints/[endpointId]/components/logs/DataTable"
-import { columns } from "src/app/(layout)/services/[id]/endpoints/[endpointId]/components/logs/columns"
-import { Button } from "../../../../../../../../components/ui/button"
-import { createClient } from "../../../../../../../../utils/supabase/client"
-import { TableSkeleton } from "./TableSkeleton"
+import { DataTable } from "./DataTable"
+import { columns } from "./columns"
+import { Button } from "@/components/ui/button"
+import { createClient } from "@/utils/supabase/client"
+import { TableSkeleton } from "@/app/(layout)/services/[id]/endpoints/[endpointId]/components/logs/TableSkeleton"
 import { Loader2, RefreshCw, Download } from "lucide-react"
-import { LogCard } from "src/app/(layout)/services/[id]/endpoints/[endpointId]/components/logs/LogCard"
-import type { Tables } from "../../../../../../../../utils/supabase/database.types"
-import { CardDescription, CardTitle } from "../../../../../../../../components/ui/card"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../../../../../../../components/ui/tooltip"
+import { LogCard } from "./LogCard"
+import type { Tables } from "@/utils/supabase/database.types"
+import { CardDescription, CardTitle } from "@/components/ui/card"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 type Props = {
     endpoint: Tables<"endpoints">

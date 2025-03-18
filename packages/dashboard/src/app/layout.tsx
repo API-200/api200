@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import "src/app/globals.css";
+import "./globals.css";
 import NextTopLoader from "nextjs-toploader";
 import { Analytics } from "@vercel/analytics/next";
-import { Toaster } from "../components/ui/sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { Suspense } from "react";
 import { PublicEnvScript } from 'next-runtime-env';
 

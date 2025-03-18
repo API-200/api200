@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
-import { createClient } from "../../../utils/supabase/server"
-import { generateApiKey } from "../../../utils/generateApiKey"
-import { cache } from "../../../utils/redis/cache"
+import { createClient } from "@/utils/supabase/server"
+import { generateApiKey } from "@/utils/generateApiKey"
+import { cache } from "@/utils/redis/cache"
 
 const DAY = 24 * 60 * 60 * 1000;
 

@@ -1,4 +1,4 @@
-import { Tables } from "./supabase/database.types";
+import { Tables } from "@/utils/supabase/database.types";
 import { env } from "next-runtime-env";
 
 //TODO - add accepts & returns, add schema objects
