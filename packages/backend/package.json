@@ -31,6 +31,7 @@
     "koa-bodyparser": "^4.4.1",
     "koa-router": "^13.0.1",
     "prettier": "^3.4.2",
+    "to-json-schema": "^0.2.5",
     "tsconfig-paths": "^4.2.0",
     "zod": "^3.24.1"
   },
@@ -42,6 +43,7 @@
     "@types/koa-router": "^7.4.8",
     "@types/koa__cors": "^5.0.0",
     "@types/node": "^22.13.0",
+    "@types/to-json-schema": "^0.2.4",
     "eslint": "^9.19.0",
     "supabase": "^2.15.8",
     "ts-node": "^10.9.2",

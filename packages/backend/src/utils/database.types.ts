@@ -37,6 +37,7 @@ export type Database = {
           created_at: string | null
           data_mapping_enabled: boolean
           data_mapping_function: string | null
+          description: string | null
           fallback_response: Json | null
           fallback_response_enabled: boolean
           fallback_status_code: number | null
@@ -51,7 +52,9 @@ export type Database = {
           retry_count: number
           retry_enabled: boolean
           retry_interval_s: number
+          schema: Json | null
           service_id: number
+          source: string | null
           updated_at: string | null
         }
         Insert: {
@@ -60,6 +63,7 @@ export type Database = {
           created_at?: string | null
           data_mapping_enabled?: boolean
           data_mapping_function?: string | null
+          description?: string | null
           fallback_response?: Json | null
           fallback_response_enabled?: boolean
           fallback_status_code?: number | null
@@ -74,7 +78,9 @@ export type Database = {
           retry_count?: number
           retry_enabled?: boolean
           retry_interval_s?: number
+          schema?: Json | null
           service_id: number
+          source?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -83,6 +89,7 @@ export type Database = {
           created_at?: string | null
           data_mapping_enabled?: boolean
           data_mapping_function?: string | null
+          description?: string | null
           fallback_response?: Json | null
           fallback_response_enabled?: boolean
           fallback_status_code?: number | null
@@ -97,7 +104,9 @@ export type Database = {
           retry_count?: number
           retry_enabled?: boolean
           retry_interval_s?: number
+          schema?: Json | null
           service_id?: number
+          source?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -106,6 +115,35 @@ export type Database = {
             columns: ["service_id"]
             isOneToOne: false
             referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      endpoints_response_schema_history: {
+        Row: {
+          created_at: string | null
+          endpoint_id: number
+          id: number
+          schema: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint_id: number
+          id?: never
+          schema?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint_id?: number
+          id?: never
+          schema?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "endpoints_response_schema_history_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "endpoints"
             referencedColumns: ["id"]
           },
         ]
@@ -191,6 +229,7 @@ export type Database = {
           description: string | null
           id: number
           name: string
+          source: string | null
           updated_at: string | null
           user_id: string
         }
@@ -203,6 +242,7 @@ export type Database = {
           description?: string | null
           id?: number
           name: string
+          source?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -215,6 +255,7 @@ export type Database = {
           description?: string | null
           id?: number
           name?: string
+          source?: string | null
           updated_at?: string | null
           user_id?: string
         }
