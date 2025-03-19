@@ -59,7 +59,7 @@ export default function MonitoringViewer({ data, isLoading = false, onRefresh }:
                     </div>
                     <SkeletonRequestsBarChart />
                 </>
-            ) : data ? (
+            ) : data && data.AverageResponseTimeProps.averageTime!==0 ? (
                 <>
                     {/* Data display */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -71,7 +71,7 @@ export default function MonitoringViewer({ data, isLoading = false, onRefresh }:
                 </>
             ) : (
                 <div className="flex items-center justify-center h-64 text-muted-foreground">
-                    No monitoring data available. Click refresh to load data.
+                    No data available for last 24h. Make request first.
                 </div>
             )}
         </>
