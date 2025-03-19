@@ -32,5 +32,17 @@ export const createTestRouter = () => {
         ctx.body = 'Cache set on ' + date.toISOString();
     });
 
+    router.get('/test/schema-change', async (ctx) => {
+        ctx.status = 200;
+        ctx.body = {
+            a: 1,
+            b: '2',
+            c: {
+                c1: 1,
+                c2: [{ a: 1 }, { a: 2 }]
+            }
+        }
+    })
+
     return router;
 };

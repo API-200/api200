@@ -21,52 +21,6 @@ import { getFullUrlWithParams } from './modules/base/mapUrlParams';
 import { applyThirdPartyAuth } from './modules/applyThirdPartyAuth';
 import { prepareAxiosConfig } from './modules/base/prepareAxiosConfig';
 import FEATURES from './features';
-/*
- *  Plan:
- *
- *  Base - M ✅
- *  Eslint - M ✅
- *  Methods for request - M ✅
- *  Logging - Z ✅
- *   - add IP to logs (Audit logging) - Z ✅
- *   - add logs on error, mocked data, etc ✅
- *  Error handling and standartization - M ✅
- *  Our Rate limit - 1000 request month per user - Z ✅
- *  retry - Z ✅
- *  rate limit - M
- *  Data transform / field mapping - M ✅
- *  Auth - M ✅
- *  Caching - Z ✅
- *  Update primary keys to int8 - Z&M ✅
- *  Tests - M ✅
- *  Data mocks - M ✅
- *  Fallback responses - M ✅
- *  Optimization - M ✅
- *  Proper Redis setup - M
- *  Cron to update usages - Z ✅
- *  Check indices - Z ✅
- *  Add Sentry - M
- *
- *
- *
- *  Unknown:
- *
- *  Input validation - ???
- *  IP Allowlist
- *
- *
- *
- *  Nice to have:
- *
- *  Warn about schema changes - send email
- *  Warning if gateway timeout or 500 error
- *  AI doc parsing
- *  AI - generate transform fn
- *  Deployment zones - us, eu, asia, etc
- *
- *
- *
- * */
 
 export const createApiHandlerRouter = () => {
     const router = new Router();
@@ -89,7 +43,6 @@ export const createApiHandlerRouter = () => {
             };
 
             if (FEATURES.CHECK_USAGE) {
-                console.log('here')
                 const usageCheck = await checkUsage(metadata.userId);
                 if (usageCheck.error) {
                     ctx.status = usageCheck.status!;
