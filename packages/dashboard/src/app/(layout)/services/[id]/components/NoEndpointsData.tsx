@@ -1,5 +1,5 @@
-import { Button } from "../../../../../components/ui/button"
-import { Tables } from '../../../../../utils/supabase/database.types'
+import { Button } from "@/components/ui/button"
+import { Tables } from '@/utils/supabase/database.types'
 import { PlusCircle } from "lucide-react"
 import Link from 'next/link'
 

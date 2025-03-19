@@ -1,8 +1,8 @@
-import {createClient} from "../../../utils/supabase/server";
+import {createClient} from "@/utils/supabase/server";
 import dynamic from 'next/dynamic'
-import { generateSwaggerSpec } from "../../../utils/generateSwaggerSpec";
-import SwaggerSkeletonLoader from "./components/SwaggerSkeletonLoader";
-const DynamicApiDocs = dynamic(() => import('src/app/(layout)/specification/components/SwaggerViewer'), {
+import { generateSwaggerSpec } from "@/utils/generateSwaggerSpec";
+import SwaggerSkeletonLoader from "@/app/(layout)/specification/components/SwaggerSkeletonLoader";
+const DynamicApiDocs = dynamic(() => import('./components/SwaggerViewer'), {
     loading: SwaggerSkeletonLoader,
 })
 

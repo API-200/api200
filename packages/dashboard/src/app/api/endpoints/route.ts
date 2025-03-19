@@ -1,7 +1,7 @@
-import { createClient } from '../../../utils/supabase/server';
+import { createClient } from '@/utils/supabase/server';
 import { captureException } from '@sentry/nextjs';
 import { NextResponse } from 'next/server';
-import { dropCachedResults, dropServiceEndpointsCaches } from 'src/app/api/utils';
+import { dropCachedResults, dropServiceEndpointsCaches } from '../utils';
 
 export async function POST(req: any) {
     const supabase = await createClient();

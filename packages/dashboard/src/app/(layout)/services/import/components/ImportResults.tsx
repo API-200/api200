@@ -1,17 +1,17 @@
 "use client"
 
-import {Button} from "../../../../../components/ui/button"
-import {Card, CardContent, CardHeader, CardTitle} from "../../../../../components/ui/card"
-import {Label} from "../../../../../components/ui/label"
-import {Badge} from "../../../../../components/ui/badge"
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "../../../../../components/ui/table"
-import {ParsedSwaggerResult} from "../parseSwagger";
-import {MethodBadge} from "../../../../../components/MethodBadge";
-import {createClient} from "../../../../../utils/supabase/client";
+import {Button} from "@/components/ui/button"
+import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
+import {Label} from "@/components/ui/label"
+import {Badge} from "@/components/ui/badge"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
+import {ParsedSwaggerResult} from "@/app/(layout)/services/import/parseSwagger";
+import {MethodBadge} from "@/components/MethodBadge";
+import {createClient} from "@/utils/supabase/client";
 import {useRouter} from "next/navigation";
 import {useState} from "react";
 import {toast} from "sonner";
-import {Tables} from "../../../../../utils/supabase/database.types";
+import {Tables} from "@/utils/supabase/database.types";
 
 type Props = {
     data: ParsedSwaggerResult

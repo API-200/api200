@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { Card, CardDescription, CardHeader, CardTitle } from "../../../../../../../components/ui/card"
-import { Button } from "../../../../../../../components/ui/button"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -14,9 +14,9 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from "../../../../../../../components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog"
 import { toast } from "sonner";
-import { Tables } from '../../../../../../../utils/supabase/database.types'
+import { Tables } from '@/utils/supabase/database.types'
 
 interface Props {
     endpoint: Tables<'endpoints'>;

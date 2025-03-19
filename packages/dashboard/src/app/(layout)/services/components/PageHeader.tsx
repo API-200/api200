@@ -1,7 +1,7 @@
-import {Button} from "../../../../components/ui/button";
+import {Button} from "@/components/ui/button";
 import Link from "next/link";
 import {Import, PlusCircle} from "lucide-react";
-import {Separator} from "../../../../components/ui/separator";
+import {Separator} from "@/components/ui/separator";
 
 type Props = {
     isLoading?: boolean;

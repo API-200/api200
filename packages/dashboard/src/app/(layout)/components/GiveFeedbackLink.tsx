@@ -1,9 +1,9 @@
 import {useEffect} from 'react';
 import {MessageSquare} from 'lucide-react';
 import Script from 'next/script';
-import {SidebarMenuButton, SidebarMenuItem} from "../../../components/ui/sidebar";
-import {useUserClient} from "../../../hooks/useUserClient";
-import FEATURES from "../../../config/features";
+import {SidebarMenuButton, SidebarMenuItem} from "@/components/ui/sidebar";
+import {useUserClient} from "@/hooks/useUserClient";
+import FEATURES from "@/config/features";
 
 declare global {
     interface Window {

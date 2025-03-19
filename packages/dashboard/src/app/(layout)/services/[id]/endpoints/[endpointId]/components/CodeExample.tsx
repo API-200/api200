@@ -1,11 +1,11 @@
 "use client"
 
 import { FC, useState } from "react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../../../../../../components/ui/select"
-import { Card, CardContent } from "../../../../../../../components/ui/card"
-import { Button } from "../../../../../../../components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Copy, CopyCheck } from "lucide-react"
-import {getCodeExample, Language, Method} from "../../../../../../../utils/getCodeExample";
+import {getCodeExample, Language, Method} from "@/utils/getCodeExample";
 
 interface ApiExampleProps {
     url: string

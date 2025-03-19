@@ -8,11 +8,11 @@ import {
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-} from "../../../../components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb"
 import { ChevronRight } from "lucide-react"
-import ImportResults from "./components/ImportResults";
-import ImportOptions from "src/app/(layout)/services/import/components/ImportOptions";
-import {ParsedSwaggerResult} from "./parseSwagger";
+import ImportResults from "@/app/(layout)/services/import/components/ImportResults";
+import ImportOptions from "./components/ImportOptions";
+import {ParsedSwaggerResult} from "@/app/(layout)/services/import/parseSwagger";
 
 export default function ImportServicePage() {
     const [isReviewPhase, setIsReviewPhase] = useState(false)

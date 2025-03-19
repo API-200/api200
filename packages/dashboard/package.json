@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "supabase:generate": "pnpm dlx supabase gen types typescript --project-id --schema public > src/utils/supabase/database.types.ts"
+    "supabase:generate": "pnpm dlx supabase gen types typescript --project-id dvvarxzksexeuctacjzv --schema public > src/utils/supabase/database.types.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

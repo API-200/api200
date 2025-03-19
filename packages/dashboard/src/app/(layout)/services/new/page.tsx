@@ -5,11 +5,11 @@ import {
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-} from "../../../../components/ui/breadcrumb"
+} from "@/components/ui/breadcrumb"
 import {ChevronRight, Import} from "lucide-react";
-import {APIServiceForm} from "../../../../components/forms/APIServiceForm";
-import {Alert, AlertDescription, AlertTitle } from "../../../../components/ui/alert";
-import {Button} from "../../../../components/ui/button";
+import {APIServiceForm} from "@/components/forms/APIServiceForm";
+import {Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import {Button} from "@/components/ui/button";
 import Link from "next/link";
 
 export default function NewApiServicePage() {

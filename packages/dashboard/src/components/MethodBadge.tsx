@@ -1,5 +1,5 @@
-import {Badge} from "./ui/badge";
-import {cn} from "../lib/utils";
+import {Badge} from "@/components/ui/badge";
+import {cn} from "@/lib/utils";
 
 const methodColors: Record<string, string> = {
     GET: "bg-green-100 text-green-800",
