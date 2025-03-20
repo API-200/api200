@@ -8,7 +8,7 @@
     "build": "tsc --sourceMap && tsc-alias",
     "start": "node --enable-source-maps dist/index.js",
     "start:prod": "if [ \"$IS_SELFHOSTED\" = \"true\" ]; then pnpm run supabase:m; fi && node dist/index.js",
-    "supabase:generate": "pnpm dlx supabase gen types typescript --project-id --schema public > src/utils/database.types.ts",
+    "supabase:generate": "pnpm dlx supabase gen types typescript --project-id dvvarxzksexeuctacjzv --schema public > src/utils/database.types.ts",
     "supabase:m": "pnpm dlx supabase migration up --db-url postgres://postgres.$POOLER_TENANT_ID:$POSTGRES_PASSWORD@supabase-pooler:5432/postgres",
     "lint": "eslint ",
     "lint:fix": "eslint  --fix",

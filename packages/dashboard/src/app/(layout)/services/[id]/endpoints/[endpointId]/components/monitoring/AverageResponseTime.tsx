@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import {
     AverageResponseTimeProps
 } from "./getMonitoringData";
+import {formatRequestDuration} from "@/utils/formatters";
 
 
 
@@ -19,10 +20,9 @@ export function AverageResponseTime({ averageTime, recentTimes, lastUpdated }: A
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                         <Clock className="h-5 w-5 text-muted-foreground" />
-                        <span className="text-2xl font-bold">{averageTime}</span>
-                        <span className="text-muted-foreground">ms</span>
+                        <span className="text-2xl font-bold">{formatRequestDuration(averageTime)}</span>
                     </div>
-                    <div className="text-xs text-muted-foreground">Updated {lastUpdated}</div>
+                    <div className="text-xs text-muted-foreground">Updated at {lastUpdated}</div>
                 </div>
                 <div className="mt-4 h-40">
                     <ResponsiveContainer width="100%" height="100%">

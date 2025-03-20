@@ -2,6 +2,7 @@
 
 import {createClient} from "@/utils/supabase/client";
 import {Tables} from "@/utils/supabase/database.types";
+import {format} from "date-fns";
 
 interface ResponseTimeData {
     id: string
@@ -155,7 +156,7 @@ export const getMonitoringData = async (endpoint: Tables<'endpoints'>): Promise<
         AverageResponseTimeProps: {
             averageTime: Math.round(averageTime * 100) / 100, // Round to 2 decimal places
             recentTimes,
-            lastUpdated: new Date().toISOString()
+            lastUpdated: format(new Date(), "HH:mm")
         },
         CacheHitRatioProps: {
             cacheHits,
