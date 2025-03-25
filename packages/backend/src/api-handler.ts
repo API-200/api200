@@ -139,6 +139,7 @@ export const createApiHandlerRouter = () => {
 
             // Handle the main request
             const { status, body, headers } = await handleRequest(
+                keyData.user_id,
                 ctx,
                 endpointData,
                 requestHeaders,

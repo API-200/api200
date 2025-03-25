@@ -18,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@getbrevo/brevo": "^2.2.0",
     "@keyv/redis": "^4.2.0",
     "@koa/cors": "^5.0.0",
     "@sentry/node": "^9.1.0",

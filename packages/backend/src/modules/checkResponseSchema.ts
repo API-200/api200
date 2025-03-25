@@ -1,14 +1,19 @@
 import { captureException } from '@sentry/node';
 import { supabase } from '@utils/supabase';
 import { AssertionError, deepStrictEqual } from 'assert';
+import { sendEmailWithHTML } from './mailer';
+import { prepareHtml } from '@utils/templatesProcessor';
+import { Tables } from '@utils/database.types';
+import { getSchemaChangedTemplate } from 'src/emails';
+import FEATURES from 'src/features';
 
-export async function checkResponseSchema(endpointId: number, responseSchema: any) {
+export async function checkResponseSchema(userId: string, endpointData: Tables<'endpoints'>, responseSchema: any) {
     try {
         const saveSchema = async () => {
             await supabase
                 .from('endpoints_response_schema_history')
                 .insert({
-                    endpoint_id: endpointId,
+                    endpoint_id: endpointData.id,
                     schema: responseSchema
                 });
         }
@@ -16,7 +21,7 @@ export async function checkResponseSchema(endpointId: number, responseSchema: an
         const latestSchemaResponse = await supabase
             .from('endpoints_response_schema_history')
             .select('*')
-            .eq('endpoint_id', endpointId)
+            .eq('endpoint_id', endpointData.id)
             .order('created_at', { ascending: false })
             .limit(1)
             .maybeSingle();
@@ -34,7 +39,20 @@ export async function checkResponseSchema(endpointId: number, responseSchema: an
         catch (e: unknown) {
             if (e instanceof AssertionError) {
                 await saveSchema();
-                // TODO: notify
+
+                if (FEATURES.EMAILS) {
+                    const userData = await supabase.auth.admin.getUserById(userId);
+                    if (userData.data.user?.email) {
+                        const template = await getSchemaChangedTemplate();
+                        const html = prepareHtml(template, {
+                            endpointName: endpointData.name,
+                            endpointFullUrl: endpointData.full_url,
+                            detailsUrl: `${process.env.API200_FRONTEND_URL}/services/${endpointData.service_id}/endpoints/${endpointData.id}`
+                        });
+
+                        await sendEmailWithHTML(userData.data.user.email, '[API 200] Response schema has changed!', html);
+                    }
+                }
             }
         }
     }
