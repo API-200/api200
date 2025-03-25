@@ -13,7 +13,7 @@ export function AverageResponseTime({ averageTime, recentTimes, lastUpdated }: A
     return (
         <Card>
             <CardHeader className="pb-1">
-                <CardTitle className="text-sm font-medium">Average Response Time</CardTitle>
+                <CardTitle >Average Response Time</CardTitle>
                 <CardDescription>Last 24 hours</CardDescription>
             </CardHeader>
             <CardContent>

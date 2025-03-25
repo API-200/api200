@@ -10,7 +10,7 @@ export function CacheHitRatio({ cacheHits, totalRequests }: CacheHitRatioProps) 
     return (
         <Card>
             <CardHeader className="pb-1">
-                <CardTitle className="text-sm font-medium">Cache Hit Ratio</CardTitle>
+                <CardTitle >Cache Hit Ratio</CardTitle>
                 <CardDescription>Cache hits vs total requests</CardDescription>
             </CardHeader>
             <CardContent className="flex items-center justify-center">
