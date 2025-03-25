@@ -39,6 +39,7 @@ export const createApiHandlerRouter = () => {
             const metadata = {
                 serviceName: ctx.params.serviceName,
                 endpointName: ctx.params.endpointName,
+                method: ctx.params.method,
                 userId: keyData.user_id,
             };
 

@@ -119,6 +119,35 @@ export type Database = {
           },
         ]
       }
+      endpoints_response_schema_history: {
+        Row: {
+          created_at: string | null
+          endpoint_id: number
+          id: number
+          schema: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint_id: number
+          id?: never
+          schema?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint_id?: number
+          id?: never
+          schema?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "endpoints_response_schema_history_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       logs: {
         Row: {
           cache_hit: boolean
@@ -258,14 +287,24 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_route_data: {
-        Args: {
-          p_service_name: string
-          p_user_id: string
-          p_endpoint_name: string
-        }
-        Returns: Json
-      }
+      get_route_data:
+        | {
+            Args: {
+              p_service_name: string
+              p_user_id: string
+              p_endpoint_name: string
+            }
+            Returns: Json
+          }
+        | {
+            Args: {
+              p_service_name: string
+              p_user_id: string
+              p_endpoint_name: string
+              p_method: string
+            }
+            Returns: Json
+          }
       increment_usage: {
         Args: {
           p_user_id: string

@@ -8,18 +8,14 @@ import { format } from "date-fns"
 import { MethodBadge } from "@/components/MethodBadge"
 import { StatusBadge } from "@/components/StatusBadge"
 import { Badge } from "@/components/ui/badge"
+import {formatRequestDuration} from "@/utils/formatters";
 
 type LogCardProps = {
     log: Tables<"logs"> & { endpoint: Tables<"endpoints"> }
     onClose: () => void
 }
 
-function formatDuration(ms: number): string {
-    if (ms >= 1000) {
-        return `${(ms / 1000).toFixed(2)}s`
-    }
-    return `${ms}ms`
-}
+
 
 function JsonDisplay({ data }: { data: unknown }) {
     const [isCopied, setIsCopied] = useState(false)
@@ -71,7 +67,7 @@ export function LogCard({ log, onClose }: LogCardProps) {
                             <div>|</div>
                             <div>Finish: {format(new Date(log.finished_at), "MMM dd HH:mm:ss.SS")}</div>
                         </div>
-                        <div>Duration: {formatDuration(log.took_ms!)}</div>
+                        <div>Duration: {formatRequestDuration(log.took_ms!)}</div>
                     </div>
                     <div className="flex justify-between text-sm text-muted-foreground">
                         <div>

@@ -15,6 +15,7 @@ import { Logs } from "@/app/(layout)/services/[id]/endpoints/[endpointId]/compon
 import { CardDescription, CardTitle } from "@/components/ui/card";
 import Settings from './components/SettingsTab';
 import { env } from "next-runtime-env";
+import EndpointMonitoring from "@/app/(layout)/services/[id]/endpoints/[endpointId]/components/monitoring/Monitoring";
 
 type Args = {
     params: Promise<{ id: string, endpointId: string }>
@@ -83,11 +84,7 @@ export default async function PrivatePage({ params }: Args) {
                     <Logs endpoint={endpoint} />
                 </TabsContent>
                 <TabsContent value="monitoring">
-                    <div className="flex flex-col items-center justify-center py-12">
-                        <Construction className="w-16 h-16 text-yellow-500 mb-4" />
-                        <h2 className="text-2xl font-semibold mb-2">Endpoint Monitoring Coming Soon</h2>
-                        <p className="text-gray-600">We&#39;re working hard to bring you powerful monitoring tools.</p>
-                    </div>
+                    <EndpointMonitoring endpoint={endpoint} />
                 </TabsContent>
                 <TabsContent value="settings">
                     <Settings endpoint={endpoint} service={service} />
