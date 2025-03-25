@@ -1,432 +1,379 @@
 "use client"
 
-import { createClient } from "@/utils/supabase/client";
-import { Tables } from "@/utils/supabase/database.types";
+import { createClient } from "@/utils/supabase/client"
+import type { Tables } from "@/utils/supabase/database.types"
+import { format } from "date-fns"
+import type { DateRange } from "@/components/shared/DateRangeSelector"
 
-// Define interfaces for each widget
-interface EndpointLatencyRanking {
-    endpoint_id: number;
-    endpoint_name: string;
-    endpoint_method: string;
-    avg_latency: number;
-    sample_count: number;
+// Interfaces for Service Monitoring Data
+export interface ServiceMonitoringData {
+    StatusCodeDistributionProps: StatusCodeDistributionProps
+    EndpointLatencyRankingProps: EndpointLatencyRankingProps
+    ErrorRateByEndpointProps: ErrorRateByEndpointProps
+    RequestsOverTimeProps: RequestsOverTimeProps
+    ErrorRateTrendProps: ErrorRateTrendProps
+    FallbackMockUsageProps: FallbackMockUsageProps
+    ErrorClusteringProps: ErrorClusteringProps
+    ResponseTimeSpikesProps: ResponseTimeSpikesProps
 }
 
-interface ErrorRateByEndpoint {
-    endpoint_id: number;
-    endpoint_name: string;
-    endpoint_method: string;
-    total_requests: number;
-    error_count: number;
-    error_rate: number;
-}
-
+// Existing interfaces from endpoint monitoring
 interface StatusCodeItem {
-    name: string;
-    value: number;
-    color: string;
+    name: string
+    value: number
+    color: string
+}
+
+export interface StatusCodeDistributionProps {
+    data: StatusCodeItem[]
+}
+
+export interface EndpointLatencyRankingProps {
+    data: {
+        endpoint: string
+        averageLatency: number
+        endpointId: number
+    }[]
+}
+
+export interface ErrorRateByEndpointProps {
+    data: {
+        endpoint: string
+        errorRate: number
+        endpointId: number
+        totalRequests: number
+        errorCount: number
+    }[]
 }
 
 interface TimeSeriesDataPoint {
-    time: string;
-    requests: number;
+    time: string
+    requests: number
 }
 
-interface ErrorRateTrendPoint {
-    time: string;
-    error_rate: number;
-    total_requests: number;
+export interface RequestsOverTimeProps {
+    data: TimeSeriesDataPoint[]
+    title?: string
+    description?: string
 }
 
-interface FallbackMockUsage {
-    fallback_percentage: number;
-    mock_percentage: number;
-    total_requests: number;
+export interface ErrorRateTrendProps {
+    data: TimeSeriesDataPoint[]
 }
 
-interface AnomalyCluster {
-    endpoint_id: number;
-    endpoint_name: string;
-    endpoint_method: string;
-    res_code: number | null;
-    count: number;
-    is_anomaly: boolean;
+export interface FallbackMockUsageProps {
+    fallbackRate: number
+    mockRate: number
 }
 
-interface ResponseTimeAnomaly {
-    endpoint_id: number;
-    endpoint_name: string;
-    endpoint_method: string;
-    timestamp: string;
-    took_ms: number;
-    is_anomaly: boolean;
-    z_score: number;
+export interface ErrorClusteringProps {
+    data: {
+        endpointId: number
+        resCode: number | null
+        errorCount: number
+    }[]
 }
 
-// Main service monitoring interface
-export interface ServiceMonitoringData {
-    statusCodeDistribution: {
-        data: StatusCodeItem[];
-    };
-    endpointLatencyRanking: {
-        data: EndpointLatencyRanking[];
-    };
-    errorRateByEndpoint: {
-        data: ErrorRateByEndpoint[];
-    };
-    requestsOverTime: {
-        data: TimeSeriesDataPoint[];
-        title: string;
-        description: string;
-    };
-    errorRateTrend: {
-        data: ErrorRateTrendPoint[];
-    };
-    fallbackMockUsage: FallbackMockUsage;
-    errorClustering: {
-        data: AnomalyCluster[];
-    };
-    responseTimeAnomalies: {
-        data: ResponseTimeAnomaly[];
-    };
+export interface ResponseTimeSpikesProps {
+    data: {
+        time: string
+        tookMs: number
+        endpointId: number
+        isAnomaly: boolean
+    }[]
 }
 
-// Helper function to get color for status code
+// Helper function to determine status code color (existing function)
 const getStatusCodeColor = (statusCode: number): string => {
-    if (statusCode >= 200 && statusCode < 300) return "#10B981"; // Green for 2xx
-    if (statusCode >= 300 && statusCode < 400) return "#F59E0B"; // Yellow for 3xx
-    if (statusCode >= 400 && statusCode < 500) return "#EF4444"; // Red for 4xx
-    if (statusCode >= 500) return "#7F1D1D"; // Dark red for 5xx
-    return "#6B7280"; // Gray for other
-};
+    if (statusCode >= 200 && statusCode < 300) return "#10B981" // Green for 2xx
+    if (statusCode >= 300 && statusCode < 400) return "#F59E0B" // Yellow for 3xx
+    if (statusCode >= 400 && statusCode < 500) return "#EF4444" // Red for 4xx
+    if (statusCode >= 500) return "#7F1D1D" // Dark red for 5xx
+    return "#6B7280" // Gray for other
+}
 
-// Helper function to generate hourly time buckets for the last 24 hours
-const generateTimeSlots = (): TimeSeriesDataPoint[] => {
-    const slots: TimeSeriesDataPoint[] = [];
-    const now = new Date();
+// Helper function to generate time buckets
+const generateTimeSlots = (dateRange: DateRange): TimeSeriesDataPoint[] => {
+    const slots: TimeSeriesDataPoint[] = []
+    const now = new Date()
 
-    for (let i = 23; i >= 0; i--) {
-        const date = new Date(now);
-        date.setHours(now.getHours() - i);
-        date.setMinutes(0, 0, 0);
+    let totalSlots = 24 // Default for 24h
+    let hourIncrement = 1
+    let format = "HH:00" // Format as "HH:00" for hourly
 
-        slots.push({
-            time: date.toISOString().slice(11, 13) + ":00", // Format as "HH:00"
-            requests: 0
-        });
+    if (dateRange === "7d") {
+        totalSlots = 7
+        hourIncrement = 24 // Daily increments
+        format = "MMM dd" // Format as "Jan 01"
+    } else if (dateRange === "30d") {
+        totalSlots = 30
+        hourIncrement = 24 // Daily increments
+        format = "MMM dd" // Format as "Jan 01"
     }
 
-    return slots;
-};
+    for (let i = totalSlots - 1; i >= 0; i--) {
+        const date = new Date(now)
+        date.setHours(now.getHours() - i * hourIncrement)
 
-// Helper to detect anomalies using Z-score
-const detectAnomalies = (data: number[], threshold = 2.5): boolean[] => {
-    if (data.length === 0) return [];
+        if (dateRange === "24h") {
+            date.setMinutes(0, 0, 0)
+            slots.push({
+                time: date.toISOString().slice(11, 13) + ":00", // Format as "HH:00"
+                requests: 0,
+            })
+        } else {
+            // For 7d and 30d, set to start of day
+            date.setHours(0, 0, 0, 0)
+            const formattedDate = new Intl.DateTimeFormat("en-US", {
+                month: "short",
+                day: "numeric",
+            }).format(date)
 
-    const mean = data.reduce((sum, val) => sum + val, 0) / data.length;
-    const variance = data.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / data.length;
-    const stdDev = Math.sqrt(variance);
+            slots.push({
+                time: formattedDate,
+                requests: 0,
+            })
+        }
+    }
 
-    if (stdDev === 0) return data.map(() => false);
+    return slots
+}
 
-    return data.map(val => Math.abs((val - mean) / stdDev) > threshold);
-};
+// Helper function to get the timestamp for the start of the selected range
+const getStartTimestamp = (dateRange: DateRange): Date => {
+    const now = new Date()
 
-// Helper to calculate Z-scores
-const calculateZScores = (data: number[]): number[] => {
-    if (data.length === 0) return [];
+    if (dateRange === "24h") {
+        const timestamp = new Date(now)
+        timestamp.setHours(now.getHours() - 24)
+        return timestamp
+    } else if (dateRange === "7d") {
+        const timestamp = new Date(now)
+        timestamp.setDate(now.getDate() - 7)
+        return timestamp
+    } else if (dateRange === "30d") {
+        const timestamp = new Date(now)
+        timestamp.setDate(now.getDate() - 30)
+        return timestamp
+    }
 
-    const mean = data.reduce((sum, val) => sum + val, 0) / data.length;
-    const variance = data.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / data.length;
-    const stdDev = Math.sqrt(variance);
+    return new Date(now.setHours(now.getHours() - 24)) // Default to 24h
+}
 
-    if (stdDev === 0) return data.map(() => 0);
+// Helper function to get the time bucket for a log entry
+const getTimeBucket = (logTime: Date, dateRange: DateRange): string => {
+    if (dateRange === "24h") {
+        return logTime.toISOString().slice(11, 13) + ":00" // Format as "HH:00"
+    } else {
+        // For 7d and 30d, use the day
+        return new Intl.DateTimeFormat("en-US", {
+            month: "short",
+            day: "numeric",
+        }).format(logTime)
+    }
+}
 
-    return data.map(val => (val - mean) / stdDev);
-};
+// Helper function for anomaly detection (simple z-score method)
+const detectAnomaly = (values: number[], threshold: number = 1.5): boolean[] => {
+    const mean = values.reduce((a, b) => a + b, 0) / values.length
+    const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length
+    const stdDev = Math.sqrt(variance)
 
-export const getServiceMonitoringData = async (endpoints: Tables<'endpoints'>[]): Promise<ServiceMonitoringData> => {
-    const supabase = await createClient();
-    const endpointIds = endpoints.map(endpoint => endpoint.id);
+    return values.map(value => Math.abs(value - mean) > (threshold * stdDev))
+}
 
-    // Create maps for endpoint info lookup
-    const endpointNameMap = new Map<number, string>();
-    const endpointMethodMap = new Map<number, string>();
+export const getServiceMonitoringData = async (
+    endpoints: Tables<"endpoints">[],
+    dateRange: DateRange = "24h",
+): Promise<ServiceMonitoringData> => {
+    const supabase = await createClient()
 
-    endpoints.forEach(endpoint => {
-        endpointNameMap.set(endpoint.id, endpoint.name || `Endpoint ${endpoint.id}`);
-        endpointMethodMap.set(endpoint.id, endpoint.method || "");
-    });
+    // Calculate timestamp for the start of the selected range
+    const startTimestamp = getStartTimestamp(dateRange)
+    const startTimestampStr = startTimestamp.toISOString()
 
-    // Function to get formatted endpoint info
-    const getEndpointInfo = (endpointId: number) => {
-        const name = endpointNameMap.get(endpointId) || `Endpoint ${endpointId}`;
-        const method = endpointMethodMap.get(endpointId) || "";
-        return { name, method };
-    };
-
-    // Calculate timestamp for 24 hours ago
-    const twentyFourHoursAgo = new Date();
-    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
-    const twentyFourHoursAgoStr = twentyFourHoursAgo.toISOString();
-
-    // Get logs for all endpoints for the last 24 hours
+    // Fetch logs for all specified endpoints
+    const endpointIds = endpoints.map(endpoint => endpoint.id)
+    console.log('endpointIds',endpointIds)
     const { data: logs, error } = await supabase
         .from("logs")
         .select("*")
         .in("endpoint_id", endpointIds)
-        .gte("started_at", twentyFourHoursAgoStr)
-        .order("started_at", { ascending: false });
+        .gte("started_at", startTimestampStr)
+        .order("started_at", { ascending: false })
 
     if (error || !logs) {
-        console.error("Error fetching logs:", error);
-        throw new Error(`Failed to fetch logs: ${error?.message || "Unknown error"}`);
+        console.error("Error fetching logs:", error)
+        throw new Error(`Failed to fetch logs: ${error?.message || "Unknown error"}`)
     }
 
-    // --- Status Code Distribution ---
-    const statusCodeCounts: Record<string, number> = {};
+    console.log('logs',logs)
 
-    logs.forEach(log => {
-        const statusCode = log.res_code;
+    // 1. Status Code Distribution
+    const statusCodeCounts: Record<string, number> = {}
+    logs.forEach((log) => {
+        const statusCode = log.res_code
         if (statusCode) {
-            // Group by hundred (e.g., 200, 300, 400, 500)
-            const statusGroup = Math.floor(statusCode / 100) * 100;
-            const statusKey = `${statusGroup}`;
-
-            statusCodeCounts[statusKey] = (statusCodeCounts[statusKey] || 0) + 1;
+            const statusGroup = Math.floor(statusCode / 100) * 100
+            const statusKey = `${statusGroup}`
+            statusCodeCounts[statusKey] = (statusCodeCounts[statusKey] || 0) + 1
         }
-    });
+    })
 
     const statusCodeItems: StatusCodeItem[] = Object.entries(statusCodeCounts).map(([code, count]) => ({
         name: `${code}`,
         value: count,
-        color: getStatusCodeColor(parseInt(code))
-    }));
+        color: getStatusCodeColor(Number.parseInt(code)),
+    }))
 
-    // --- Endpoint Latency Ranking ---
-    const latencyByEndpoint: Record<number, { sum: number; count: number }> = {};
-
-    logs.forEach(log => {
-        if (log.took_ms && log.took_ms > 0) {
-            if (!latencyByEndpoint[log.endpoint_id]) {
-                latencyByEndpoint[log.endpoint_id] = { sum: 0, count: 0 };
-            }
-            latencyByEndpoint[log.endpoint_id].sum += log.took_ms;
-            latencyByEndpoint[log.endpoint_id].count += 1;
+    // 2. Endpoint Latency Ranking
+    const latencyByEndpoint: Record<number, number[]> = {}
+    logs.forEach((log) => {
+        if (log.took_ms) {
+            latencyByEndpoint[log.endpoint_id] = [
+                ...(latencyByEndpoint[log.endpoint_id] || []),
+                log.took_ms
+            ]
         }
-    });
+    })
 
-    const endpointLatencyRanking: EndpointLatencyRanking[] = Object.entries(latencyByEndpoint)
-        .map(([endpointId, data]) => {
-            const id = parseInt(endpointId);
-            const endpointInfo = getEndpointInfo(id);
-            return {
-                endpoint_id: id,
-                endpoint_name: endpointInfo.name,
-                endpoint_method: endpointInfo.method,
-                avg_latency: Math.round((data.sum / data.count) * 100) / 100,
-                sample_count: data.count
-            };
-        })
-        .sort((a, b) => b.avg_latency - a.avg_latency); // Sort by highest latency first
+    const endpointLatencyRanking = Object.entries(latencyByEndpoint).map(([endpointId, latencies]) => {
+        const averageLatency = latencies.reduce((a, b) => a + b, 0) / latencies.length
+        const endpointName = endpoints.find(e => e.id === Number(endpointId))?.name || `Endpoint ${endpointId}`
 
-    // --- Error Rate by Endpoint ---
-    const errorsByEndpoint: Record<number, { errors: number; total: number }> = {};
-
-    endpointIds.forEach(id => {
-        errorsByEndpoint[id] = { errors: 0, total: 0 };
-    });
-
-    logs.forEach(log => {
-        const endpointId = log.endpoint_id;
-        if (!errorsByEndpoint[endpointId]) {
-            errorsByEndpoint[endpointId] = { errors: 0, total: 0 };
-        }
-
-        errorsByEndpoint[endpointId].total += 1;
-
-        // Count as error if error field is not null or status code is 4xx or 5xx
-        if (log.error || (log.res_code && log.res_code >= 400)) {
-            errorsByEndpoint[endpointId].errors += 1;
-        }
-    });
-
-    const errorRateByEndpoint: ErrorRateByEndpoint[] = Object.entries(errorsByEndpoint)
-        .map(([endpointId, data]) => {
-            const id = parseInt(endpointId);
-            const endpointInfo = getEndpointInfo(id);
-            return {
-                endpoint_id: id,
-                endpoint_name: endpointInfo.name,
-                endpoint_method: endpointInfo.method,
-                total_requests: data.total,
-                error_count: data.errors,
-                error_rate: data.total > 0 ? Math.round((data.errors / data.total) * 10000) / 100 : 0 // As percentage, rounded to 2 decimal places
-            };
-        })
-        .sort((a, b) => b.error_rate - a.error_rate); // Sort by highest error rate first
-
-    // --- Requests Over Time ---
-    const timeSlots = generateTimeSlots();
-
-    // Fill the time slots with actual request counts
-    logs.forEach(log => {
-        const logTime = new Date(log.started_at);
-        const hourStr = logTime.toISOString().slice(11, 13) + ":00"; // Format as "HH:00"
-
-        const slotIndex = timeSlots.findIndex(slot => slot.time === hourStr);
-        if (slotIndex !== -1) {
-            timeSlots[slotIndex].requests += 1;
-        }
-    });
-
-    // --- Error Rate Trend ---
-    const errorTrendSlots = generateTimeSlots().map(slot => ({
-        time: slot.time,
-        error_rate: 0,
-        total_requests: 0
-    }));
-
-    logs.forEach(log => {
-        const logTime = new Date(log.started_at);
-        const hourStr = logTime.toISOString().slice(11, 13) + ":00";
-
-        const slotIndex = errorTrendSlots.findIndex(slot => slot.time === hourStr);
-        if (slotIndex !== -1) {
-            errorTrendSlots[slotIndex].total_requests += 1;
-
-            // Count as error if error field is not null or status code is 4xx or 5xx
-            if (log.error || (log.res_code && log.res_code >= 400)) {
-                errorTrendSlots[slotIndex].error_rate += 1;
-            }
-        }
-    });
-
-    // Calculate the error rate percentage
-    errorTrendSlots.forEach(slot => {
-        if (slot.total_requests > 0) {
-            slot.error_rate = (slot.error_rate / slot.total_requests) * 100;
-        } else {
-            slot.error_rate = 0;
-        }
-    });
-
-    // --- Fallback/Mock Usage ---
-    const totalRequests = logs.length;
-    const fallbackResponses = logs.filter(log => log.is_fallback_response).length;
-    const mockResponses = logs.filter(log => log.is_mock_response).length;
-
-    const fallbackMockUsage: FallbackMockUsage = {
-        fallback_percentage: totalRequests > 0 ? (fallbackResponses / totalRequests) * 100 : 0,
-        mock_percentage: totalRequests > 0 ? (mockResponses / totalRequests) * 100 : 0,
-        total_requests: totalRequests
-    };
-
-    // --- Error Clustering ---
-    // Group errors by endpoint and status code
-    const errorClusters: Record<string, { count: number; endpoint_id: number; res_code: number | null }> = {};
-
-    logs.forEach(log => {
-        if (log.error || (log.res_code && log.res_code >= 400)) {
-            const key = `${log.endpoint_id}-${log.res_code || 'null'}`;
-
-            if (!errorClusters[key]) {
-                errorClusters[key] = {
-                    count: 0,
-                    endpoint_id: log.endpoint_id,
-                    res_code: log.res_code
-                };
-            }
-
-            errorClusters[key].count += 1;
-        }
-    });
-
-    // Convert to array and identify anomalies
-    const errorClusterArray = Object.values(errorClusters);
-    const errorCounts = errorClusterArray.map(cluster => cluster.count);
-    const anomalies = detectAnomalies(errorCounts);
-
-    const errorClustering: AnomalyCluster[] = errorClusterArray.map((cluster, index) => {
-        const endpointInfo = getEndpointInfo(cluster.endpoint_id);
         return {
-            endpoint_id: cluster.endpoint_id,
-            endpoint_name: endpointInfo.name,
-            endpoint_method: endpointInfo.method,
-            res_code: cluster.res_code,
-            count: cluster.count,
-            is_anomaly: anomalies[index]
-        };
-    });
-
-    // --- Response Time Anomalies ---
-    // Group response times by endpoint
-    const responseTimesByEndpoint: Record<number, { times: number[]; timestamps: string[] }> = {};
-
-    logs.forEach(log => {
-        if (log.took_ms && log.took_ms > 0) {
-            if (!responseTimesByEndpoint[log.endpoint_id]) {
-                responseTimesByEndpoint[log.endpoint_id] = { times: [], timestamps: [] };
-            }
-
-            responseTimesByEndpoint[log.endpoint_id].times.push(log.took_ms);
-            responseTimesByEndpoint[log.endpoint_id].timestamps.push(log.started_at);
+            endpoint: endpointName,
+            averageLatency: Math.round(averageLatency * 100) / 100,
+            endpointId: Number(endpointId)
         }
-    });
+    }).sort((a, b) => b.averageLatency - a.averageLatency)
 
-    // Detect anomalies for each endpoint
-    const responseTimeAnomalies: ResponseTimeAnomaly[] = [];
+    // 3. Error Rate by Endpoint
+    const errorRateByEndpoint = endpoints.map(endpoint => {
+        const endpointLogs = logs.filter(log => log.endpoint_id === endpoint.id)
+        const totalRequests = endpointLogs.length
+        const errorCount = endpointLogs.filter(log => log.error !== null).length
 
-    Object.entries(responseTimesByEndpoint).forEach(([endpointId, data]) => {
-        const zScores = calculateZScores(data.times);
-        const anomalies = zScores.map(score => Math.abs(score) > 2.5);
-        const id = parseInt(endpointId);
-        const endpointInfo = getEndpointInfo(id);
+        return {
+            endpoint: endpoint.name,
+            endpointId: endpoint.id,
+            totalRequests,
+            errorCount,
+            errorRate: totalRequests > 0 ? (errorCount / totalRequests) * 100 : 0
+        }
+    })
 
-        anomalies.forEach((isAnomaly, index) => {
-            if (isAnomaly) {
-                responseTimeAnomalies.push({
-                    endpoint_id: id,
-                    endpoint_name: endpointInfo.name,
-                    endpoint_method: endpointInfo.method,
-                    timestamp: data.timestamps[index],
-                    took_ms: data.times[index],
-                    is_anomaly: true,
-                    z_score: zScores[index]
-                });
+    // 4. Requests Over Time
+    const timeSlots = generateTimeSlots(dateRange)
+    logs.forEach((log) => {
+        const logTime = new Date(log.started_at)
+        const timeBucket = getTimeBucket(logTime, dateRange)
+
+        const slotIndex = timeSlots.findIndex((slot) => slot.time === timeBucket)
+        if (slotIndex !== -1) {
+            timeSlots[slotIndex].requests += 1
+        }
+    })
+
+    // 5. Error Rate Trend
+    const errorRateTimeSlots = [...timeSlots]
+    logs.forEach((log) => {
+        const logTime = new Date(log.started_at)
+        const timeBucket = getTimeBucket(logTime, dateRange)
+
+        const slotIndex = errorRateTimeSlots.findIndex((slot) => slot.time === timeBucket)
+        if (slotIndex !== -1 && log.error !== null) {
+            errorRateTimeSlots[slotIndex].requests += 1
+        }
+    })
+
+    const errorRateTrend = errorRateTimeSlots.map(slot => ({
+        ...slot,
+        requests: slot.requests > 0
+            ? (slot.requests / timeSlots.find(t => t.time === slot.time)!.requests) * 100
+            : 0
+    }))
+
+    // 6. Fallback/Mock Usage
+    const totalLogs = logs.length
+    const fallbackCount = logs.filter(log => log.is_fallback_response).length
+    const mockCount = logs.filter(log => log.is_mock_response).length
+
+    // 7. Error Clustering
+    const errorClustering = logs
+        .filter(log => log.error !== null)
+        .map(log => ({
+            endpointId: log.endpoint_id,
+            resCode: log.res_code,
+            errorCount: 1
+        }))
+        .reduce((acc, error) => {
+            const existingError = acc.find(
+                e => e.endpointId === error.endpointId &&
+                    e.resCode === error.resCode
+            )
+
+            if (existingError) {
+                existingError.errorCount += 1
+            } else {
+                acc.push(error)
             }
-        });
-    });
 
-    // Sort anomalies by timestamp (most recent first)
-    responseTimeAnomalies.sort((a, b) =>
-        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
-    );
+            return acc
+        }, [] as { endpointId: number; resCode: number | null; errorCount: number }[])
+
+    // 8. Response Time Spikes
+    const responseTimeSpikeData = logs.map(log => {
+        const logTime = new Date(log.started_at)
+        return {
+            time: logTime.toISOString(),
+            tookMs: log.took_ms || 0,
+            endpointId: log.endpoint_id
+        }
+    })
+
+    const responseTimeSpikes = endpoints.flatMap(endpoint => {
+        const endpointTimes = logs
+            .filter(log => log.endpoint_id === endpoint.id && log.took_ms)
+            .map(log => log.took_ms!)
+
+        const anomalies = detectAnomaly(endpointTimes)
+
+        return responseTimeSpikeData
+            .filter(spike => spike.endpointId === endpoint.id)
+            .map((spike, index) => ({
+                ...spike,
+                isAnomaly: anomalies[index] || false
+            }))
+    })
 
     return {
-        statusCodeDistribution: {
+        StatusCodeDistributionProps: {
             data: statusCodeItems
         },
-        endpointLatencyRanking: {
+        EndpointLatencyRankingProps: {
             data: endpointLatencyRanking
         },
-        errorRateByEndpoint: {
+        ErrorRateByEndpointProps: {
             data: errorRateByEndpoint
         },
-        requestsOverTime: {
+        RequestsOverTimeProps: {
             data: timeSlots,
-            title: "Service Requests per Hour",
-            description: "Number of requests across all endpoints in the last 24 hours"
+            title: dateRange === "24h" ? "Requests per Hour" : "Requests per Day",
+            description: `Number of requests in the last ${dateRange}`
         },
-        errorRateTrend: {
-            data: errorTrendSlots
+        ErrorRateTrendProps: {
+            data: errorRateTrend
         },
-        fallbackMockUsage,
-        errorClustering: {
+        FallbackMockUsageProps: {
+            fallbackRate: (fallbackCount / totalLogs) * 100,
+            mockRate: (mockCount / totalLogs) * 100
+        },
+        ErrorClusteringProps: {
             data: errorClustering
         },
-        responseTimeAnomalies: {
-            data: responseTimeAnomalies
+        ResponseTimeSpikesProps: {
+            data: responseTimeSpikes
         }
-    };
-};
+    }
+}

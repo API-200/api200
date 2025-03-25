@@ -160,6 +160,7 @@ export const getMonitoringData = async (
         .gte("started_at", startTimestampStr)
         .order("started_at", { ascending: false })
 
+
     if (error || !logs) {
         console.error("Error fetching logs:", error)
         throw new Error(`Failed to fetch logs: ${error?.message || "Unknown error"}`)
