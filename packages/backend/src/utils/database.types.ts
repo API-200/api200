@@ -148,6 +148,44 @@ export type Database = {
           },
         ]
       }
+      incidents: {
+        Row: {
+          created_at: string | null
+          details: Json
+          endpoint_id: number
+          handled: boolean | null
+          id: number
+          title: string
+          type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details: Json
+          endpoint_id: number
+          handled?: boolean | null
+          id?: never
+          title: string
+          type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json
+          endpoint_id?: number
+          handled?: boolean | null
+          id?: never
+          title?: string
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incidents_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       logs: {
         Row: {
           cache_hit: boolean

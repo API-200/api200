@@ -9,12 +9,24 @@ import FEATURES from 'src/features';
 
 export async function checkResponseSchema(userId: string, endpointData: Tables<'endpoints'>, responseSchema: any) {
     try {
-        const saveSchema = async () => {
+        const saveSchema = async (oldSchema: any, newSchema: any) => {
             await supabase
                 .from('endpoints_response_schema_history')
                 .insert({
                     endpoint_id: endpointData.id,
                     schema: responseSchema
+                });
+
+            await supabase
+                .from('incidents')
+                .insert({
+                    endpoint_id: endpointData.id,
+                    type: 'SCHEMA_CHANGED',
+                    title: 'Response schema changed',
+                    details: {
+                        oldSchema,
+                        newSchema
+                    }
                 });
         }
 
@@ -29,7 +41,7 @@ export async function checkResponseSchema(userId: string, endpointData: Tables<'
         const latestSchema = latestSchemaResponse.data?.schema;
 
         if (latestSchema == null) {
-            await saveSchema();
+            await saveSchema(latestSchema, responseSchema);
             return;
         }
 
@@ -38,7 +50,7 @@ export async function checkResponseSchema(userId: string, endpointData: Tables<'
         }
         catch (e: unknown) {
             if (e instanceof AssertionError) {
-                await saveSchema();
+                await saveSchema(latestSchema, responseSchema);
 
                 if (FEATURES.EMAILS) {
                     const userData = await supabase.auth.admin.getUserById(userId);
