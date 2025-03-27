@@ -31,6 +31,7 @@ export interface StatusCodeDistributionProps {
 export interface EndpointLatencyRankingProps {
     data: {
         endpoint: string
+        method: string
         averageLatency: number
         endpointId: number
     }[]
@@ -39,6 +40,7 @@ export interface EndpointLatencyRankingProps {
 export interface ErrorRateByEndpointProps {
     data: {
         endpoint: string
+        method: string
         errorRate: number
         endpointId: number
         totalRequests: number
@@ -69,6 +71,7 @@ export interface FallbackMockUsageProps {
 export interface ErrorClusteringProps {
     data: {
         endpointId: number
+        method: string
         resCode: number | null
         errorCount: number
     }[]
@@ -79,11 +82,12 @@ export interface ResponseTimeSpikesProps {
         time: string
         tookMs: number
         endpointId: number
+        method: string
         isAnomaly: boolean
     }[]
 }
 
-// Helper function to determine status code color (existing function)
+// Helper function to determine status code color
 const getStatusCodeColor = (statusCode: number): string => {
     if (statusCode >= 200 && statusCode < 300) return "#10B981" // Green for 2xx
     if (statusCode >= 300 && statusCode < 400) return "#F59E0B" // Yellow for 3xx
@@ -175,6 +179,8 @@ const getTimeBucket = (logTime: Date, dateRange: DateRange): string => {
 
 // Helper function for anomaly detection (simple z-score method)
 const detectAnomaly = (values: number[], threshold: number = 1.5): boolean[] => {
+    if (values.length === 0) return []
+
     const mean = values.reduce((a, b) => a + b, 0) / values.length
     const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length
     const stdDev = Math.sqrt(variance)
@@ -191,6 +197,8 @@ export const getServiceMonitoringData = async (
     // Calculate timestamp for the start of the selected range
     const startTimestamp = getStartTimestamp(dateRange)
     const startTimestampStr = startTimestamp.toISOString()
+
+    console.log('startTimestampStr',startTimestampStr)
 
     // Fetch logs for all specified endpoints
     const endpointIds = endpoints.map(endpoint => endpoint.id)
@@ -227,22 +235,27 @@ export const getServiceMonitoringData = async (
     }))
 
     // 2. Endpoint Latency Ranking
-    const latencyByEndpoint: Record<number, number[]> = {}
+    const latencyByEndpoint: Record<number, { times: number[], method: string }> = {}
     logs.forEach((log) => {
         if (log.took_ms) {
-            latencyByEndpoint[log.endpoint_id] = [
-                ...(latencyByEndpoint[log.endpoint_id] || []),
-                log.took_ms
-            ]
+            const endpoint = endpoints.find(e => e.id === log.endpoint_id)
+            if (!latencyByEndpoint[log.endpoint_id]) {
+                latencyByEndpoint[log.endpoint_id] = {
+                    times: [],
+                    method: endpoint?.method || 'UNKNOWN'
+                }
+            }
+            latencyByEndpoint[log.endpoint_id].times.push(log.took_ms)
         }
     })
 
-    const endpointLatencyRanking = Object.entries(latencyByEndpoint).map(([endpointId, latencies]) => {
-        const averageLatency = latencies.reduce((a, b) => a + b, 0) / latencies.length
+    const endpointLatencyRanking = Object.entries(latencyByEndpoint).map(([endpointId, data]) => {
+        const averageLatency = data.times.reduce((a, b) => a + b, 0) / data.times.length
         const endpointName = endpoints.find(e => e.id === Number(endpointId))?.name || `Endpoint ${endpointId}`
 
         return {
             endpoint: endpointName,
+            method: data.method,
             averageLatency: Math.round(averageLatency * 100) / 100,
             endpointId: Number(endpointId)
         }
@@ -256,6 +269,7 @@ export const getServiceMonitoringData = async (
 
         return {
             endpoint: endpoint.name,
+            method: endpoint.method,
             endpointId: endpoint.id,
             totalRequests,
             errorCount,
@@ -302,15 +316,20 @@ export const getServiceMonitoringData = async (
     // 7. Error Clustering
     const errorClustering = logs
         .filter(log => log.error !== null)
-        .map(log => ({
-            endpointId: log.endpoint_id,
-            resCode: log.res_code,
-            errorCount: 1
-        }))
+        .map(log => {
+            const endpoint = endpoints.find(e => e.id === log.endpoint_id)
+            return {
+                endpointId: log.endpoint_id,
+                method: endpoint?.method || 'UNKNOWN',
+                resCode: log.res_code,
+                errorCount: 1
+            }
+        })
         .reduce((acc, error) => {
             const existingError = acc.find(
                 e => e.endpointId === error.endpointId &&
-                    e.resCode === error.resCode
+                    e.resCode === error.resCode &&
+                    e.method === error.method
             )
 
             if (existingError) {
@@ -320,15 +339,17 @@ export const getServiceMonitoringData = async (
             }
 
             return acc
-        }, [] as { endpointId: number; resCode: number | null; errorCount: number }[])
+        }, [] as { endpointId: number; method: string; resCode: number | null; errorCount: number }[])
 
     // 8. Response Time Spikes
     const responseTimeSpikeData = logs.map(log => {
         const logTime = new Date(log.started_at)
+        const endpoint = endpoints.find(e => e.id === log.endpoint_id)
         return {
             time: logTime.toISOString(),
             tookMs: log.took_ms || 0,
-            endpointId: log.endpoint_id
+            endpointId: log.endpoint_id,
+            method: endpoint?.method || 'UNKNOWN'
         }
     })
 

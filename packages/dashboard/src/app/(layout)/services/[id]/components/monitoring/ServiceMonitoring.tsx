@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from 'react';
-import { getServiceMonitoringData, ServiceMonitoringData } from "./getMonitoringData";
-import type { Tables } from "@/utils/supabase/database.types";
+import {useEffect, useState} from 'react';
+import {getServiceMonitoringData, ServiceMonitoringData} from "./getMonitoringData";
+import type {Tables} from "@/utils/supabase/database.types";
 import ServiceMonitoringViewer from "./ServiceMonitoringViewer";
 import type {DateRange} from "@/components/shared/DateRangeSelector";
 
@@ -10,7 +10,7 @@ type Props = {
     endpoints: Tables<"endpoints">[]
 }
 
-export default function ServiceMonitoring({ endpoints  }: Props) {
+export default function ServiceMonitoring({endpoints}: Props) {
     const [data, setData] = useState<ServiceMonitoringData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [dateRange, setDateRange] = useState<DateRange>("24h")
@@ -18,7 +18,7 @@ export default function ServiceMonitoring({ endpoints  }: Props) {
     const refreshData = async () => {
         setIsLoading(true);
         try {
-            const freshData = await getServiceMonitoringData(endpoints);
+            const freshData = await getServiceMonitoringData(endpoints, dateRange);
             setData(freshData);
         } catch (error) {
             console.error("Failed to refresh service monitoring data:", error);
@@ -29,7 +29,7 @@ export default function ServiceMonitoring({ endpoints  }: Props) {
 
     useEffect(() => {
         refreshData();
-    }, []);
+    }, [dateRange]);
 
     const handleDateRangeChange = (newRange: DateRange) => {
         setDateRange(newRange)
