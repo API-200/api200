@@ -4,7 +4,7 @@ create table if not exists public.incidents (
     title text not null,
     type text,
     details jsonb not null,
-    handled boolean default false,
+    resolved boolean default false,
     created_at timestamptz default now()
 );
 

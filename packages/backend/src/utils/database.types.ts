@@ -153,8 +153,8 @@ export type Database = {
           created_at: string | null
           details: Json
           endpoint_id: number
-          handled: boolean | null
           id: number
+          resolved: boolean | null
           title: string
           type: string | null
         }
@@ -162,8 +162,8 @@ export type Database = {
           created_at?: string | null
           details: Json
           endpoint_id: number
-          handled?: boolean | null
           id?: never
+          resolved?: boolean | null
           title: string
           type?: string | null
         }
@@ -171,8 +171,8 @@ export type Database = {
           created_at?: string | null
           details?: Json
           endpoint_id?: number
-          handled?: boolean | null
           id?: never
+          resolved?: boolean | null
           title?: string
           type?: string | null
         }

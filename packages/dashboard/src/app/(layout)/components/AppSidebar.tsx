@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Book, Globe, KeyRound, Layers } from 'lucide-react'
+import { AlertCircleIcon, Book, Globe, KeyRound, Layers } from 'lucide-react'
 import Image from "next/image"
 import {
     Sidebar,
@@ -18,10 +18,13 @@ import { UsageProgressBar } from "./UsageProgressBar"
 import { UserSection } from "./UserSection"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
 import { GiveFeedbackLink } from "./GiveFeedbackLink"
-import FEATURES from "@/config/features";
+import FEATURES from "@/config/features"
+import { useEffect, useState } from 'react'
+import { createClient } from '@/utils/supabase/client'
 
 export function AppSidebar() {
     const pathname = usePathname()
+    const [incidentsCount, setIncidentsCount] = useState(0)
 
     const isActive = (href: string) => {
         if (href === "/services") {
@@ -29,6 +32,22 @@ export function AppSidebar() {
         }
         return pathname === href
     }
+
+    const supabase = createClient();
+
+    useEffect(() => void async function () {
+        const { data: incidentsData, error: incidentsError } = await supabase
+            .from("incidents")
+            .select('count', { count: 'exact' })
+            .eq("resolved", false)
+            .single()
+
+        console.log({ incidentsData, incidentsError })
+
+        if (incidentsData) {
+            setIncidentsCount(incidentsData.count || 0)
+        }
+    }(), [])
 
     return (
         <Sidebar>
@@ -57,8 +76,13 @@ export function AppSidebar() {
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild isActive={isActive("/incidents")}>
                                     <Link href="/incidents">
-                                        <Layers className="mr-2 h-4 w-4" />
+                                        <AlertCircleIcon className="mr-2 h-4 w-4" />
                                         Incidents
+                                        {
+                                            (incidentsCount > 0) &&
+                                            <div className="rounded-sm border border-red-400 text-red-400"><span className="p-2">{incidentsCount}</span></div>
+                                        }
+
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>

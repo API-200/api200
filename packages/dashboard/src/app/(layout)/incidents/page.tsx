@@ -4,17 +4,16 @@ import { useEffect, useState, useCallback } from "react"
 import { columns } from "./components/columns"
 import { Button } from "@/components/ui/button"
 import { createClient } from "@/utils/supabase/client"
-import { TableSkeleton } from "@/app/(layout)/services/[id]/endpoints/[endpointId]/components/logs/TableSkeleton"
-import { Loader2, RefreshCw } from "lucide-react"
-import type { Tables } from "@/utils/supabase/database.types"
+import { TableSkeleton } from "@/components/tables/TableSkeleton"
+import { AlertCircleIcon, Loader2, RefreshCw } from "lucide-react"
 import { CardDescription, CardTitle } from "@/components/ui/card"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { DataTable } from '../services/[id]/endpoints/[endpointId]/components/logs/DataTable'
+import { DataTable } from '@/components/tables/DataTable'
 import { IncidentCard } from './components/IncidentCard'
+import { type EnhancedIncident } from './types'
+import FEATURES from '@/config/features'
 
 const PAGE_SIZE = 10
-
-type EnhancedIncident = Tables<"incidents"> & { endpoint: Tables<"endpoints"> }
 
 export default function Incidents() {
     const [incidents, setIncidents] = useState<EnhancedIncident[]>([])
@@ -34,9 +33,11 @@ export default function Incidents() {
             }
 
             try {
+                const { data: user } = await supabase.auth.getUser()
                 const { data: incidentsData, error: incidentsError } = await supabase
                     .from("incidents")
-                    .select(`*, endpoint:endpoints(*)`)
+                    .select(`*, endpoint:endpoints(*, service:services(*))`)
+                    .eq('endpoint.service.user_id', user.user?.id)
                     .order("created_at", { ascending: false })
                     .range(isLoadMore ? incidents.length : 0, isLoadMore ? incidents.length + PAGE_SIZE : PAGE_SIZE)
                     .limit(PAGE_SIZE + 1)
@@ -78,16 +79,16 @@ export default function Incidents() {
         try {
             const { error } = await supabase
                 .from("incidents")
-                .update({ handled: true })
+                .update({ resolved: true })
                 .eq("id", incidentId)
 
             if (error) throw error
 
             setIncidents(prev =>
-                prev.map(i => i.id === incidentId ? { ...i, handled: true } : i)
+                prev.map(i => i.id === incidentId ? { ...i, resolved: true } : i)
             )
             if (selectedIncident?.id === incidentId) {
-                setSelectedIncident({ ...selectedIncident, handled: true })
+                setSelectedIncident({ ...selectedIncident, resolved: true })
             }
         } catch (error) {
             console.error("Error resolving incident:", error)
@@ -106,7 +107,7 @@ export default function Incidents() {
         <div>
             <div className="flex justify-between items-center mb-4">
                 <div>
-                    <CardTitle>Endpoint Incidents</CardTitle>
+                    <CardTitle>Incidents Explorer</CardTitle>
                     <CardDescription>Click on incident row to view details</CardDescription>
                 </div>
                 <div className="flex space-x-2">
@@ -124,6 +125,14 @@ export default function Incidents() {
                         </Tooltip>
                     </TooltipProvider>
                 </div>
+            </div>
+            <div>
+                {!FEATURES.EMAILS && (
+                    <div className="flex items-center gap-2 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded">
+                        <AlertCircleIcon />
+                        <div className="text-sm">Be aware that email notifications are not supported in self-hosted version</div>
+                    </div>
+                )}
             </div>
             <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                 <div className={`${selectedIncident ? "w-full md:w-3/5" : "w-full"} transition-all duration-300 ease-in-out`}>

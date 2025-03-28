@@ -1,9 +1,10 @@
-import { Tables } from '@/utils/supabase/database.types'
 import { ColumnDef } from '@tanstack/react-table'
 import { Badge } from "@/components/ui/badge"
 import { format } from "date-fns"
+import { MethodBadge } from '@/components/MethodBadge'
+import { type EnhancedIncident } from '../types'
 
-export const columns: ColumnDef<Tables<'incidents'> & { endpoint: Tables<'endpoints'> }>[] = [
+export const columns: ColumnDef<EnhancedIncident>[] = [
     {
         accessorKey: "title",
         header: "Title",
@@ -12,26 +13,34 @@ export const columns: ColumnDef<Tables<'incidents'> & { endpoint: Tables<'endpoi
         },
     },
     {
-        accessorKey: "type",
-        header: "Type",
+        accessorKey: "endpoint",
+        header: "Endpoint",
         cell: ({ row }) => {
-            const type = row.getValue("type") as string
-            return <Badge variant="outline">{type || "Unknown"}</Badge>
+            const endpoint = row.getValue("endpoint") as EnhancedIncident['endpoint'];
+            const service = endpoint.service;
+            return <code>{(service.name + '/' + endpoint.name).replaceAll('//', '/')}</code>
         },
     },
     {
-        accessorKey: "handled",
+        accessorKey: "method",
+        header: "Method",
+        cell: ({ row }) => {
+            const endpoint = row.getValue("endpoint") as EnhancedIncident['endpoint'];
+            return <MethodBadge method={endpoint.method} />
+        },
+    },
+    {
+        accessorKey: "resolved",
         header: "Status",
         cell: ({ row }) => {
-            const handled = row.getValue("handled") as boolean
-            return handled
+            return row.getValue("resolved")
                 ? <Badge>Resolved</Badge>
                 : <Badge variant="destructive">Active</Badge>
         },
     },
     {
         accessorKey: "created_at",
-        header: "Created",
+        header: "Occured At",
         cell: ({ row }) => {
             return format(new Date(row.getValue("created_at")), "MMM dd HH:mm:ss")
         },
