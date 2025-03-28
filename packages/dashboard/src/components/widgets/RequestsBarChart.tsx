@@ -1,7 +1,7 @@
-import {Bar, BarChart, ResponsiveContainer, XAxis, YAxis} from "recharts"
+import {Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis} from "recharts"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
-import { RequestsBarChartProps } from "./getMonitoringData"
+import { RequestsBarChartProps } from "./getEndpointMonitoringData"
 
 export function RequestsBarChart({
                                      data,
@@ -23,10 +23,11 @@ export function RequestsBarChart({
                                 color: "hsl(var(--primary))",
                             },
                         }}
-                        className="h-48 w-full"
+                        className="h-52 w-full"
                     >
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={data}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false}/>
                                 <XAxis
                                     dataKey="time"
                                     tickLine={false}

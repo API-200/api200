@@ -1,7 +1,7 @@
 import { Database } from "lucide-react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CacheHitRatioProps } from "./getMonitoringData"
+import { CacheHitRatioProps } from "./getEndpointMonitoringData"
 
 
 export function CacheHitRatio({ cacheHits, totalRequests }: CacheHitRatioProps) {

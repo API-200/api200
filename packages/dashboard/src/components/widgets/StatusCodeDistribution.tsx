@@ -3,7 +3,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
     StatusCodeDistributionProps
-} from "./getMonitoringData";
+} from "./getEndpointMonitoringData";
 
 
 export function StatusCodeDistribution({ data }: StatusCodeDistributionProps) {
@@ -11,7 +11,7 @@ export function StatusCodeDistribution({ data }: StatusCodeDistributionProps) {
     return (
         <Card>
             <CardHeader className="pb-1">
-                <CardTitle >Status Code Distribution</CardTitle>
+                <CardTitle>Status Code Distribution</CardTitle>
                 <CardDescription>2xx/3xx/4xx/5xx breakdown</CardDescription>
             </CardHeader>
             <CardContent>

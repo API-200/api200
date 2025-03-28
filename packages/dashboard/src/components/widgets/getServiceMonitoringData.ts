@@ -1,23 +1,19 @@
 "use client"
 
-import { createClient } from "@/utils/supabase/client"
-import type { Tables } from "@/utils/supabase/database.types"
-import { format } from "date-fns"
-import type { DateRange } from "@/components/shared/DateRangeSelector"
+import {createClient} from "@/utils/supabase/client"
+import type {Tables} from "@/utils/supabase/database.types"
+import type {DateRange} from "@/components/shared/DateRangeSelector"
 
-// Interfaces for Service Monitoring Data
+// Simplified Interfaces
 export interface ServiceMonitoringData {
     StatusCodeDistributionProps: StatusCodeDistributionProps
     EndpointLatencyRankingProps: EndpointLatencyRankingProps
     ErrorRateByEndpointProps: ErrorRateByEndpointProps
     RequestsOverTimeProps: RequestsOverTimeProps
     ErrorRateTrendProps: ErrorRateTrendProps
-    FallbackMockUsageProps: FallbackMockUsageProps
-    ErrorClusteringProps: ErrorClusteringProps
-    ResponseTimeSpikesProps: ResponseTimeSpikesProps
 }
 
-// Existing interfaces from endpoint monitoring
+// Existing interfaces
 interface StatusCodeItem {
     name: string
     value: number
@@ -61,30 +57,6 @@ export interface RequestsOverTimeProps {
 
 export interface ErrorRateTrendProps {
     data: TimeSeriesDataPoint[]
-}
-
-export interface FallbackMockUsageProps {
-    fallbackRate: number
-    mockRate: number
-}
-
-export interface ErrorClusteringProps {
-    data: {
-        endpointId: number
-        method: string
-        resCode: number | null
-        errorCount: number
-    }[]
-}
-
-export interface ResponseTimeSpikesProps {
-    data: {
-        time: string
-        tookMs: number
-        endpointId: number
-        method: string
-        isAnomaly: boolean
-    }[]
 }
 
 // Helper function to determine status code color
@@ -177,17 +149,6 @@ const getTimeBucket = (logTime: Date, dateRange: DateRange): string => {
     }
 }
 
-// Helper function for anomaly detection (simple z-score method)
-const detectAnomaly = (values: number[], threshold: number = 1.5): boolean[] => {
-    if (values.length === 0) return []
-
-    const mean = values.reduce((a, b) => a + b, 0) / values.length
-    const variance = values.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / values.length
-    const stdDev = Math.sqrt(variance)
-
-    return values.map(value => Math.abs(value - mean) > (threshold * stdDev))
-}
-
 export const getServiceMonitoringData = async (
     endpoints: Tables<"endpoints">[],
     dateRange: DateRange = "24h",
@@ -198,24 +159,19 @@ export const getServiceMonitoringData = async (
     const startTimestamp = getStartTimestamp(dateRange)
     const startTimestampStr = startTimestamp.toISOString()
 
-    console.log('startTimestampStr',startTimestampStr)
-
     // Fetch logs for all specified endpoints
     const endpointIds = endpoints.map(endpoint => endpoint.id)
-    console.log('endpointIds',endpointIds)
-    const { data: logs, error } = await supabase
+    const {data: logs, error} = await supabase
         .from("logs")
         .select("*")
         .in("endpoint_id", endpointIds)
         .gte("started_at", startTimestampStr)
-        .order("started_at", { ascending: false })
+        .order("started_at", {ascending: false})
 
     if (error || !logs) {
         console.error("Error fetching logs:", error)
         throw new Error(`Failed to fetch logs: ${error?.message || "Unknown error"}`)
     }
-
-    console.log('logs',logs)
 
     // 1. Status Code Distribution
     const statusCodeCounts: Record<string, number> = {}
@@ -308,66 +264,6 @@ export const getServiceMonitoringData = async (
             : 0
     }))
 
-    // 6. Fallback/Mock Usage
-    const totalLogs = logs.length
-    const fallbackCount = logs.filter(log => log.is_fallback_response).length
-    const mockCount = logs.filter(log => log.is_mock_response).length
-
-    // 7. Error Clustering
-    const errorClustering = logs
-        .filter(log => log.error !== null)
-        .map(log => {
-            const endpoint = endpoints.find(e => e.id === log.endpoint_id)
-            return {
-                endpointId: log.endpoint_id,
-                method: endpoint?.method || 'UNKNOWN',
-                resCode: log.res_code,
-                errorCount: 1
-            }
-        })
-        .reduce((acc, error) => {
-            const existingError = acc.find(
-                e => e.endpointId === error.endpointId &&
-                    e.resCode === error.resCode &&
-                    e.method === error.method
-            )
-
-            if (existingError) {
-                existingError.errorCount += 1
-            } else {
-                acc.push(error)
-            }
-
-            return acc
-        }, [] as { endpointId: number; method: string; resCode: number | null; errorCount: number }[])
-
-    // 8. Response Time Spikes
-    const responseTimeSpikeData = logs.map(log => {
-        const logTime = new Date(log.started_at)
-        const endpoint = endpoints.find(e => e.id === log.endpoint_id)
-        return {
-            time: logTime.toISOString(),
-            tookMs: log.took_ms || 0,
-            endpointId: log.endpoint_id,
-            method: endpoint?.method || 'UNKNOWN'
-        }
-    })
-
-    const responseTimeSpikes = endpoints.flatMap(endpoint => {
-        const endpointTimes = logs
-            .filter(log => log.endpoint_id === endpoint.id && log.took_ms)
-            .map(log => log.took_ms!)
-
-        const anomalies = detectAnomaly(endpointTimes)
-
-        return responseTimeSpikeData
-            .filter(spike => spike.endpointId === endpoint.id)
-            .map((spike, index) => ({
-                ...spike,
-                isAnomaly: anomalies[index] || false
-            }))
-    })
-
     return {
         StatusCodeDistributionProps: {
             data: statusCodeItems
@@ -385,16 +281,6 @@ export const getServiceMonitoringData = async (
         },
         ErrorRateTrendProps: {
             data: errorRateTrend
-        },
-        FallbackMockUsageProps: {
-            fallbackRate: (fallbackCount / totalLogs) * 100,
-            mockRate: (mockCount / totalLogs) * 100
-        },
-        ErrorClusteringProps: {
-            data: errorClustering
-        },
-        ResponseTimeSpikesProps: {
-            data: responseTimeSpikes
         }
     }
 }
