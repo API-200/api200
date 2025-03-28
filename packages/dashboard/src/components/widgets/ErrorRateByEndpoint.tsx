@@ -28,16 +28,11 @@ export function ErrorRateByEndpoint({ data }: ErrorRateByEndpointProps) {
     return (
         <Card className="w-full">
             <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <CardTitle>Error Rate by Endpoint</CardTitle>
-                        <CardDescription>Comparison of error rates across endpoints</CardDescription>
-                    </div>
-                    <AlertTriangle className="h-5 w-5 text-destructive" />
-                </div>
+                <CardTitle>Error Rate by Endpoint</CardTitle>
+                <CardDescription>Comparison of error rates across endpoints</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="space-y-1.5">
+                <div className="space-y-1">
                     {sortedData.map((item) => (
                         <div key={item.endpointId} className="space-y-1">
                             <div className="flex items-center justify-between">
