@@ -70,6 +70,7 @@ export interface FallbackMockUsageProps {
 
 export interface ErrorClusteringProps {
     data: {
+        endpoint: string
         endpointId: number
         method: string
         resCode: number | null
@@ -320,6 +321,7 @@ export const getServiceMonitoringData = async (
             const endpoint = endpoints.find(e => e.id === log.endpoint_id)
             return {
                 endpointId: log.endpoint_id,
+                endpoint: endpoint?.name,
                 method: endpoint?.method || 'UNKNOWN',
                 resCode: log.res_code,
                 errorCount: 1
@@ -335,11 +337,11 @@ export const getServiceMonitoringData = async (
             if (existingError) {
                 existingError.errorCount += 1
             } else {
-                acc.push(error)
+                acc.push(error as any)
             }
 
             return acc
-        }, [] as { endpointId: number; method: string; resCode: number | null; errorCount: number }[])
+        }, [] as { endpointId: number; endpoint: string; method: string; resCode: number | null; errorCount: number }[])
 
     // 8. Response Time Spikes
     const responseTimeSpikeData = logs.map(log => {

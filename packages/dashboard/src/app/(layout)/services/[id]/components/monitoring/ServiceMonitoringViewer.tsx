@@ -13,6 +13,12 @@ import {
 import {
     SkeletonStatusCodeDistribution
 } from "@/app/(layout)/services/[id]/endpoints/[endpointId]/components/monitoring/skeletons/skeleton-status-code-distribution";
+import {ErrorRateByEndpoint} from "@/app/(layout)/services/[id]/components/monitoring/ErrorRateByEndpoint";
+import {ErrorRateBarChart} from "@/app/(layout)/services/[id]/components/monitoring/ErrorRateBarChart";
+import {
+    RequestsBarChart
+} from "@/app/(layout)/services/[id]/endpoints/[endpointId]/components/monitoring/RequestsBarChart";
+import { SkeletonRequestsBarChart } from "../../endpoints/[endpointId]/components/monitoring/skeletons/skeleton-requests-bar-chart"
 
 
 type Props = {
@@ -77,7 +83,13 @@ export default function ServiceMonitoringViewer({
                     {/* Skeleton loading state */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <EndpointLatencyRanking.Skeleton/>
-                        <SkeletonStatusCodeDistribution />
+                        <ErrorRateByEndpoint.Skeleton/>
+                        <SkeletonStatusCodeDistribution/>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+
+                        <ErrorRateBarChart.Skeleton/>
+                        <SkeletonRequestsBarChart/>
                     </div>
                 </>
             ) : data && data.EndpointLatencyRankingProps.data.length !== 0 ? (
@@ -85,8 +97,14 @@ export default function ServiceMonitoringViewer({
                     {/* Data display */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                         <EndpointLatencyRanking {...data.EndpointLatencyRankingProps} />
+                        <ErrorRateByEndpoint {...data.ErrorRateByEndpointProps} />
                         <StatusCodeDistribution {...data.StatusCodeDistributionProps} />
                     </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <ErrorRateBarChart {...data.ErrorRateTrendProps}/>
+                        <RequestsBarChart {...data.RequestsOverTimeProps}/>
+                    </div>
+
                 </>
             ) : (
                 <div className="flex items-center justify-center h-64 text-muted-foreground">
