@@ -141,7 +141,7 @@ const getTimeBucket = (logTime: Date, dateRange: DateRange): string => {
     }
 }
 
-export const getMonitoringData = async (
+export const getEndpointMonitoringData = async (
     endpoint: Tables<"endpoints">,
     dateRange: DateRange = "24h",
 ): Promise<MonitoringData> => {

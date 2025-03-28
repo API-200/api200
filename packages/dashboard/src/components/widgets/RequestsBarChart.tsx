@@ -1,7 +1,7 @@
 import {Bar, BarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis} from "recharts"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {ChartContainer, ChartTooltip, ChartTooltipContent} from "@/components/ui/chart"
-import { RequestsBarChartProps } from "./getMonitoringData"
+import { RequestsBarChartProps } from "./getEndpointMonitoringData"
 
 export function RequestsBarChart({
                                      data,

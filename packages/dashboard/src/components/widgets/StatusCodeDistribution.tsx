@@ -3,7 +3,7 @@ import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
     StatusCodeDistributionProps
-} from "./getMonitoringData";
+} from "./getEndpointMonitoringData";
 
 
 export function StatusCodeDistribution({ data }: StatusCodeDistributionProps) {

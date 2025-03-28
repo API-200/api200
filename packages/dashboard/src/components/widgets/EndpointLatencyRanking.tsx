@@ -2,7 +2,7 @@
 
 import {BarChartIcon as Bar} from "lucide-react"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
-import {EndpointLatencyRankingProps} from "./getMonitoringData"
+import {EndpointLatencyRankingProps} from "./getServiceMonitoringData"
 import {formatRequestDuration} from "@/utils/formatters";
 import {methodColorsBright} from "@/components/MethodBadge";
 import { Skeleton } from "@/components/ui/skeleton";

@@ -47,7 +47,7 @@ export function ErrorRateByEndpoint({ data }: ErrorRateByEndpointProps) {
                                         className="text-muted-foreground truncate max-w-[200px] sm:max-w-[300px]">{item.endpoint}</span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm font-medium">{item.errorRate}%</span>
+                                    <span className="text-sm font-medium">{item.errorRate.toFixed(0)}%</span>
                                     {item.errorRate > 0 && (
                                         <div
                                             className={cn(
