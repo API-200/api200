@@ -246,23 +246,21 @@ export const getServiceMonitoringData = async (
     })
 
     // 5. Error Rate Trend
-    const errorRateTimeSlots = [...timeSlots]
-    logs.forEach((log) => {
-        const logTime = new Date(log.started_at)
-        const timeBucket = getTimeBucket(logTime, dateRange)
+    const errorRateTrend = timeSlots.map(slot => {
+        const totalRequestsInSlot = slot.requests
+        const errorLogsInSlot = logs.filter(log => {
+            const logTime = new Date(log.started_at)
+            const timeBucket = getTimeBucket(logTime, dateRange)
+            return timeBucket === slot.time && log.error !== null
+        })
 
-        const slotIndex = errorRateTimeSlots.findIndex((slot) => slot.time === timeBucket)
-        if (slotIndex !== -1 && log.error !== null) {
-            errorRateTimeSlots[slotIndex].requests += 1
+        return {
+            time: slot.time,
+            requests: totalRequestsInSlot > 0
+                ? (errorLogsInSlot.length / totalRequestsInSlot) * 100
+                : 0
         }
     })
-
-    const errorRateTrend = errorRateTimeSlots.map(slot => ({
-        ...slot,
-        requests: slot.requests > 0
-            ? (slot.requests / timeSlots.find(t => t.time === slot.time)!.requests) * 100
-            : 0
-    }))
 
     return {
         StatusCodeDistributionProps: {
