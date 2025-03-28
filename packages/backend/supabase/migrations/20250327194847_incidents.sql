@@ -11,8 +11,22 @@ create table if not exists public.incidents (
 alter table public.incidents
     owner to postgres;
 
+alter table public.Incidents
+    enable row level security;
+
 grant delete, insert, references, select, trigger, truncate, update on public.incidents to anon;
 
 grant delete, insert, references, select, trigger, truncate, update on public.incidents to authenticated;
 
 grant delete, insert, references, select, trigger, truncate, update on public.incidents to service_role;
+
+create policy "Incidents: Select" on public.incidents
+    for select
+    to authenticated
+    using (
+        exists (
+            SELECT 1 FROM public.endpoints e
+            JOIN public.services s ON e.service_id = s.id
+            WHERE e.id = endpoint_id AND s.user_id = auth.uid()
+        )
+    );

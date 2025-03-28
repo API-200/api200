@@ -179,7 +179,7 @@ export function Logs({ endpoint }: Props) {
             <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                 <div className={`${selectedLog ? "w-full md:w-3/5" : "w-full"} transition-all duration-300 ease-in-out`}>
                     <div className="flex flex-col">
-                        <DataTable columns={columns} data={logs} onRowClick={(log) => setSelectedLog(log)} />
+                        <DataTable columns={columns} data={logs} onRowClick={(log) => setSelectedLog(log)} placeholder='No logs...' />
                         {hasMore && (
                             <div className="mt-4 w-full">
                                 <Button className="w-full" variant="default" onClick={() => fetchLogs(true)} disabled={loadingMore}>
