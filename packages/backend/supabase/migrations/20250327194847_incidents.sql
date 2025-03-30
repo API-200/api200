@@ -31,5 +31,16 @@ create policy "Incidents: Select" on public.incidents
         )
     );
 
+create policy "Incidents: Update" on public.incidents
+    for update
+    to authenticated
+    using (
+        exists (
+            SELECT 1 FROM public.endpoints e
+            JOIN public.services s ON e.service_id = s.id
+            WHERE e.id = endpoint_id AND s.user_id = auth.uid()
+        )
+    );
+
 alter table public.logs
     add column created_at timestamptz default now() not null;
