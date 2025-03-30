@@ -1,20 +1,22 @@
 "use client"
 
-import {type ColumnDef, flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table"
+import { type ColumnDef, flexRender, getCoreRowModel, useReactTable, } from "@tanstack/react-table"
 
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "../../../../../../../../components/ui/table"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[]
     data: TData[]
     onRowClick?: (row: TData) => void
+    placeholder?: string
 }
 
 export function DataTable<TData, TValue>({
-                                             columns,
-                                             data,
-                                             onRowClick
-                                         }: DataTableProps<TData, TValue>) {
+    columns,
+    data,
+    onRowClick,
+    placeholder
+}: DataTableProps<TData, TValue>) {
 
     const table = useReactTable({
         data,
@@ -56,7 +58,7 @@ export function DataTable<TData, TValue>({
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No logs...
+                                    {placeholder || "No data available"}
                                 </TableCell>
                             </TableRow>
                         )}

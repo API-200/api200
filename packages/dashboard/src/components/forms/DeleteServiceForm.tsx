@@ -2,8 +2,8 @@
 
 import {useState} from "react"
 import {useRouter} from "next/navigation"
-import {Card, CardDescription, CardHeader, CardTitle} from "../ui/card"
-import {Button} from "../ui/button"
+import {Card, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Button} from "@/components/ui/button"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -14,8 +14,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
     AlertDialogTrigger,
-} from "../ui/alert-dialog"
-import {createClient} from "../../utils/supabase/client";
+} from "@/components/ui/alert-dialog"
+import {createClient} from "@/utils/supabase/client";
 import {toast} from "sonner";
 
 interface DeleteServiceFormProps {

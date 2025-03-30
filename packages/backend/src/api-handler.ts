@@ -21,52 +21,6 @@ import { getFullUrlWithParams } from './modules/base/mapUrlParams';
 import { applyThirdPartyAuth } from './modules/applyThirdPartyAuth';
 import { prepareAxiosConfig } from './modules/base/prepareAxiosConfig';
 import FEATURES from './features';
-/*
- *  Plan:
- *
- *  Base - M ✅
- *  Eslint - M ✅
- *  Methods for request - M ✅
- *  Logging - Z ✅
- *   - add IP to logs (Audit logging) - Z ✅
- *   - add logs on error, mocked data, etc ✅
- *  Error handling and standartization - M ✅
- *  Our Rate limit - 1000 request month per user - Z ✅
- *  retry - Z ✅
- *  rate limit - M
- *  Data transform / field mapping - M ✅
- *  Auth - M ✅
- *  Caching - Z ✅
- *  Update primary keys to int8 - Z&M ✅
- *  Tests - M ✅
- *  Data mocks - M ✅
- *  Fallback responses - M ✅
- *  Optimization - M ✅
- *  Proper Redis setup - M
- *  Cron to update usages - Z ✅
- *  Check indices - Z ✅
- *  Add Sentry - M
- *
- *
- *
- *  Unknown:
- *
- *  Input validation - ???
- *  IP Allowlist
- *
- *
- *
- *  Nice to have:
- *
- *  Warn about schema changes - send email
- *  Warning if gateway timeout or 500 error
- *  AI doc parsing
- *  AI - generate transform fn
- *  Deployment zones - us, eu, asia, etc
- *
- *
- *
- * */
 
 export const createApiHandlerRouter = () => {
     const router = new Router();
@@ -75,21 +29,23 @@ export const createApiHandlerRouter = () => {
         const correlationId = randomUUID();
         let fallbackData: FallbackData | null = null;
         let requestMetadata: RequestProcessingMetadata | null = null;
+        let keyData: { user_id: string } | null = null;
+        let endpointData: any = null;
 
         try {
             // Validate API key
-            const keyData = await validateApiKey(ctx);
+            keyData = await validateApiKey(ctx);
             if (!keyData) return;
 
             // Get metadata
             const metadata = {
                 serviceName: ctx.params.serviceName,
                 endpointName: ctx.params.endpointName,
+                method: ctx.method,
                 userId: keyData.user_id,
             };
 
             if (FEATURES.CHECK_USAGE) {
-                console.log('here')
                 const usageCheck = await checkUsage(metadata.userId);
                 if (usageCheck.error) {
                     ctx.status = usageCheck.status!;
@@ -110,14 +66,14 @@ export const createApiHandlerRouter = () => {
                 return;
             }
 
-            const endpointData = (routeData as any).endpoints[0];
+            endpointData = (routeData as any).endpoints[0];
             endpointData.full_url = getFullUrlWithParams(
                 endpointData,
                 metadata.endpointName,
             );
             fallbackData = extractFallbackData(endpointData);
 
-            let requestHeaders = prepareHeaders(ctx);
+            let requestHeaders = prepareHeaders(ctx, endpointData.custom_headers_enabled, endpointData.custom_headers);
             let axiosConfig = prepareAxiosConfig(
                 ctx,
                 requestHeaders,
@@ -139,7 +95,7 @@ export const createApiHandlerRouter = () => {
                 endpointId: endpointData.id,
                 startTime: new Date(),
                 reqBody: ctx.request.body,
-                reqHeaders: prepareHeaders(ctx),
+                reqHeaders: requestHeaders,
                 ip: ctx.request.ip,
                 reqUrl: axiosConfig.url!,
             };
@@ -186,6 +142,7 @@ export const createApiHandlerRouter = () => {
 
             // Handle the main request
             const { status, body, headers } = await handleRequest(
+                keyData.user_id,
                 ctx,
                 endpointData,
                 requestHeaders,
@@ -200,6 +157,8 @@ export const createApiHandlerRouter = () => {
         } catch (error) {
             Sentry.captureException(error);
             handleGlobalError(
+                keyData!.user_id,
+                endpointData,
                 ctx,
                 error as Error,
                 fallbackData,

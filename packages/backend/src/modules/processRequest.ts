@@ -5,8 +5,13 @@ import { Tables } from '../utils/database.types';
 import { tryGetCache, trySetCache } from './caching';
 import { retry } from './retry';
 import { randomUUID } from 'crypto';
+import { checkResponseSchema } from './checkResponseSchema';
+import toJsonSchema from 'to-json-schema';
+
+const methodsToWatchResponseSchema = ['get', 'post', 'put'];
 
 export async function processRequest(
+    userId: string,
     safeHeaders: Record<string, string>,
     endpointData: Tables<'endpoints'>,
     ctx: Context,
@@ -35,7 +40,7 @@ export async function processRequest(
         for await (const { response: result, retryNumber } of retry(
             axiosConfig,
             endpointData.retry_count,
-            endpointData.retry_interval_s,
+            endpointData.retry_enabled ? endpointData.retry_interval_s : 0,
         )) {
             response = result;
             if (!axios.isAxiosError(result)) {
@@ -77,8 +82,15 @@ export async function processRequest(
         trySetCache(ctx, endpointData, response);
     }
 
+    const responseData = response.data;
+
+    if (methodsToWatchResponseSchema.includes(ctx.method.toLowerCase())) {
+        const responseSchema = toJsonSchema(responseData, { strings: { detectFormat: false } })
+        checkResponseSchema(userId, endpointData, responseSchema);
+    }
+
     return {
-        data: response.data,
+        data: responseData,
         status: response.status,
         headers: response.headers,
     };

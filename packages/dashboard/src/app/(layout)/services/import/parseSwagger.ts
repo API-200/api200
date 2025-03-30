@@ -1,4 +1,4 @@
-import {Tables} from "../../../../utils/supabase/database.types";
+import {Tables} from "@/utils/supabase/database.types";
 
 interface SwaggerSchema {
     swagger: string;

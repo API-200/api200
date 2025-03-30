@@ -1,6 +1,6 @@
-import { Progress } from "../../../components/ui/progress"
+import { Progress } from "@/components/ui/progress"
 import { useEffect, useState } from "react";
-import { createClient } from "../../../utils/supabase/client";
+import { createClient } from "@/utils/supabase/client";
 
 const MAX_REQUESTS_PER_MONTH = 1000
 

@@ -1,16 +1,16 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { DataTable } from "src/app/(layout)/services/[id]/endpoints/[endpointId]/components/logs/DataTable"
-import { columns } from "src/app/(layout)/services/[id]/endpoints/[endpointId]/components/logs/columns"
-import { Button } from "../../../../../../../../components/ui/button"
-import { createClient } from "../../../../../../../../utils/supabase/client"
-import { TableSkeleton } from "./TableSkeleton"
+import { DataTable } from "@/components/tables/DataTable"
+import { columns } from "./columns"
+import { Button } from "@/components/ui/button"
+import { createClient } from "@/utils/supabase/client"
+import { TableSkeleton } from "@/components/tables/TableSkeleton"
 import { Loader2, RefreshCw, Download } from "lucide-react"
-import { LogCard } from "src/app/(layout)/services/[id]/endpoints/[endpointId]/components/logs/LogCard"
-import type { Tables } from "../../../../../../../../utils/supabase/database.types"
-import { CardDescription, CardTitle } from "../../../../../../../../components/ui/card"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../../../../../../../../components/ui/tooltip"
+import { LogCard } from "./LogCard"
+import type { Tables } from "@/utils/supabase/database.types"
+import { CardDescription, CardTitle } from "@/components/ui/card"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 type Props = {
     endpoint: Tables<"endpoints">
@@ -32,9 +32,9 @@ export function Logs({ endpoint }: Props) {
     const fetchLogs = useCallback(
         async (isLoadMore = false) => {
             if (isLoadMore) {
-                setLoadingMore(true)
+                setLoadingMore(true);
             } else {
-                setLoading(true)
+                setLoading(true);
             }
 
             try {
@@ -44,34 +44,36 @@ export function Logs({ endpoint }: Props) {
                     .eq("endpoint_id", endpoint.id)
                     .order("started_at", { ascending: false })
                     .range(isLoadMore ? logs.length : 0, isLoadMore ? logs.length + PAGE_SIZE : PAGE_SIZE)
-                    .limit(PAGE_SIZE + 1)
+                    .limit(PAGE_SIZE + 1);
 
                 if (error) {
-                    console.error("Error fetching logs:", error)
-                    setHasMore(false)
+                    console.error("Error fetching logs:", error);
+                    setHasMore(false);
                 } else {
-                    setHasMore(data.length > PAGE_SIZE)
-                    const newLogs = data.slice(0, PAGE_SIZE)
+                    setHasMore(data.length > PAGE_SIZE);
+                    const newLogs = data.slice(0, PAGE_SIZE);
 
-                    if (isLoadMore) {
-                        setLogs((prevLogs) => [...prevLogs, ...newLogs.map((log) => ({ ...log, endpoint }))])
-                    } else {
-                        setLogs(newLogs.map((log) => ({ ...log, endpoint })))
-                    }
+                    setLogs(prevLogs => {
+                        if (isLoadMore) {
+                            return [...prevLogs, ...newLogs.map(log => ({ ...log, endpoint }))];
+                        } else {
+                            return newLogs.map(log => ({ ...log, endpoint }));
+                        }
+                    });
                 }
             } catch (error) {
-                console.error("Error fetching logs:", error)
-                setHasMore(false)
+                console.error("Error fetching logs:", error);
+                setHasMore(false);
             }
 
             if (isLoadMore) {
-                setLoadingMore(false)
+                setLoadingMore(false);
             } else {
-                setLoading(false)
+                setLoading(false);
             }
         },
-        [endpoint.id, logs.length, supabase, endpoint],
-    )
+        [endpoint.id, supabase, endpoint],
+    );
 
     const refreshLogs = () => {
         fetchLogs()
@@ -177,7 +179,7 @@ export function Logs({ endpoint }: Props) {
             <div className="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
                 <div className={`${selectedLog ? "w-full md:w-3/5" : "w-full"} transition-all duration-300 ease-in-out`}>
                     <div className="flex flex-col">
-                        <DataTable columns={columns} data={logs} onRowClick={(log) => setSelectedLog(log)} />
+                        <DataTable columns={columns} data={logs} onRowClick={(log) => setSelectedLog(log)} placeholder='No logs...' />
                         {hasMore && (
                             <div className="mt-4 w-full">
                                 <Button className="w-full" variant="default" onClick={() => fetchLogs(true)} disabled={loadingMore}>

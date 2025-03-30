@@ -5,6 +5,7 @@ import { Tables } from '../utils/database.types';
 import { AxiosRequestConfig } from 'axios';
 
 export async function handleRequest(
+    userId: string,
     ctx: Context,
     endpointData: Tables<'endpoints'>,
     requestHeaders: Record<string, string>,
@@ -12,6 +13,7 @@ export async function handleRequest(
 ) {
     // Process request and get response
     const response = await processRequest(
+        userId,
         requestHeaders,
         endpointData,
         ctx,

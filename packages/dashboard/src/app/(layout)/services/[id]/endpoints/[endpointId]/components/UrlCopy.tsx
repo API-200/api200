@@ -1,7 +1,7 @@
 "use client"
 
 
-import {Button} from "../../../../../../../components/ui/button";
+import {Button} from "@/components/ui/button";
 import {Copy, CopyCheck} from "lucide-react";
 import {useState} from "react";
 

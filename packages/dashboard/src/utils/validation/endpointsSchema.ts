@@ -176,6 +176,8 @@ export const endpointSchema = z.object({
     mockData: z.string().max(1000000, "Mock data cannot exceed 1MB").optional(),
     mockStatusCode: z.union([z.string(), z.nan()]).optional(),
     mockEnabled: z.boolean().optional(),
+    customHeadersEnabled: z.boolean().optional(),
+    customHeaders: z.string().max(1000, "Custom headers cannot exceed 1KB").optional(),
 }).refine(
     (data) => {
         const validation = validateMatchingParams(data.path, data.name);

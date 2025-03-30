@@ -1,4 +1,4 @@
-import { getRedisClient } from '../../utils/redis/cache';
+import { getRedisClient } from '@/utils/redis/cache';
 
 export async function dropServiceEndpointsCaches(userId: string, serviceName: string) {
     const redisClient = await getRedisClient();

@@ -8,7 +8,7 @@
     "build": "tsc --sourceMap && tsc-alias",
     "start": "node --enable-source-maps dist/index.js",
     "start:prod": "if [ \"$IS_SELFHOSTED\" = \"true\" ]; then pnpm run supabase:m; fi && node dist/index.js",
-    "supabase:generate": "pnpm dlx supabase gen types typescript --project-id --schema public > src/utils/database.types.ts",
+    "supabase:generate": "pnpm dlx supabase gen types typescript --project-id dvvarxzksexeuctacjzv --schema public > src/utils/database.types.ts",
     "supabase:m": "pnpm dlx supabase migration up --db-url postgres://postgres.$POOLER_TENANT_ID:$POSTGRES_PASSWORD@supabase-pooler:5432/postgres",
     "lint": "eslint ",
     "lint:fix": "eslint  --fix",
@@ -18,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@getbrevo/brevo": "^2.2.0",
     "@keyv/redis": "^4.2.0",
     "@koa/cors": "^5.0.0",
     "@sentry/node": "^9.1.0",
@@ -31,6 +32,7 @@
     "koa-bodyparser": "^4.4.1",
     "koa-router": "^13.0.1",
     "prettier": "^3.4.2",
+    "to-json-schema": "^0.2.5",
     "tsconfig-paths": "^4.2.0",
     "zod": "^3.24.1"
   },
@@ -42,6 +44,7 @@
     "@types/koa-router": "^7.4.8",
     "@types/koa__cors": "^5.0.0",
     "@types/node": "^22.13.0",
+    "@types/to-json-schema": "^0.2.4",
     "eslint": "^9.19.0",
     "supabase": "^2.15.8",
     "ts-node": "^10.9.2",

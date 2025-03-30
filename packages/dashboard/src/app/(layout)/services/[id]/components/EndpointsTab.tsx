@@ -1,10 +1,10 @@
-import { Tables } from "../../../../../utils/supabase/database.types";
-import { NoEndpointsData } from "./NoEndpointsData";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../../../../components/ui/table";
-import { ColorSquare } from "../../../../../components/ColorSquare";
-import { Button } from "../../../../../components/ui/button";
+import { Tables } from "@/utils/supabase/database.types";
+import { NoEndpointsData } from "@/app/(layout)/services/[id]/components/NoEndpointsData";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ColorSquare } from "@/components/ColorSquare";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { MethodBadge } from "../../../../../components/MethodBadge";
+import { MethodBadge } from "@/components/MethodBadge";
 
 type Props = {
     endpoints: Tables<'endpoints'>[] | null,

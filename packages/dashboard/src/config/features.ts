@@ -8,10 +8,11 @@ const FEATURES = {
         SHOW_USAGE: !isSelfHosted,
         SHOW_REGION: !isSelfHosted,
     },
-    ANALYTICS:{
+    ANALYTICS: {
         ENABLE_CANNY: !isSelfHosted,
         ENABLE_SENTRY: !isSelfHosted,
-    }
+    },
+    EMAILS: false,
 }
 
 export default FEATURES

@@ -16,7 +16,7 @@ export async function* retry(
         } catch (error: any) {
             if (interval_s > 0) {
                 await new Promise((resolve) =>
-                    setTimeout(resolve, interval_s * 1000),
+                    setTimeout(resolve, interval_s),
                 );
             }
             yield { response: error, retryNumber };

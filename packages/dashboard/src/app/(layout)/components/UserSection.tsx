@@ -1,11 +1,11 @@
 "use client"
 
-import {Avatar, AvatarFallback, AvatarImage} from "../../../components/ui/avatar"
-import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "../../../components/ui/dropdown-menu"
-import {SidebarMenu, SidebarMenuButton, SidebarMenuItem} from "../../../components/ui/sidebar"
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
+import {DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger} from "@/components/ui/dropdown-menu"
+import {SidebarMenu, SidebarMenuButton, SidebarMenuItem} from "@/components/ui/sidebar"
 import {ChevronUp, LogOut} from "lucide-react"
-import {Skeleton} from "../../../components/ui/skeleton"
-import {useUserClient} from "../../../hooks/useUserClient"
+import {Skeleton} from "@/components/ui/skeleton"
+import {useUserClient} from "@/hooks/useUserClient"
 
 export function UserSection() {
     const {user, loading, handleLogout} = useUserClient()

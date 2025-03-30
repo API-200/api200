@@ -1,5 +1,5 @@
-import {createClient} from "../../../../utils/supabase/server";
-import {ServiceHeader} from "./components/ServiceHeader";
+import {createClient} from "@/utils/supabase/server";
+import {ServiceHeader} from "@/app/(layout)/services/[id]/components/ServiceHeader";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -7,12 +7,13 @@ import {
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator
-} from "../../../../components/ui/breadcrumb";
+} from "@/components/ui/breadcrumb";
 import {ChevronRight, Construction} from "lucide-react";
-import {Tabs, TabsContent, TabsList, TabsTrigger} from "../../../../components/ui/tabs";
-import {EndpointsTab} from "src/app/(layout)/services/[id]/components/EndpointsTab";
-import {APIServiceForm} from "../../../../components/forms/APIServiceForm";
-import DeleteServiceForm from "../../../../components/forms/DeleteServiceForm";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import {EndpointsTab} from "./components/EndpointsTab";
+import {APIServiceForm} from "@/components/forms/APIServiceForm";
+import DeleteServiceForm from "@/components/forms/DeleteServiceForm";
+import ServiceMonitoring from "@/app/(layout)/services/[id]/components/monitoring/ServiceMonitoring";
 
 type Args = {
     params: Promise<{ id: string }>
@@ -67,11 +68,7 @@ export default async function PrivatePage({params}: Args) {
                     <EndpointsTab endpoints={endpoints} service={service}/>
                 </TabsContent>
                 <TabsContent value="monitoring">
-                    <div className="flex flex-col items-center justify-center py-12">
-                        <Construction className="w-16 h-16 text-yellow-500 mb-4"/>
-                        <h2 className="text-2xl font-semibold mb-2">Service Monitoring Coming Soon</h2>
-                        <p className="text-gray-600">We&#39;re working hard to bring you powerful monitoring tools.</p>
-                    </div>
+                    <ServiceMonitoring endpoints={endpoints!}/>
                 </TabsContent>
                 <TabsContent value="settings">
                     <div className="w-full lg:w-2/3 mx-auto">

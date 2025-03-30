@@ -1,10 +1,10 @@
-import { Badge } from "../../../../../../../components/ui/badge"
-import { Button } from "../../../../../../../components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { ArrowRight } from "lucide-react"
-import { Tables } from "../../../../../../../utils/supabase/database.types";
-import { MethodBadge } from "../../../../../../../components/MethodBadge";
-import { ColorSquare } from "../../../../../../../components/ColorSquare";
-import { UrlCopy } from "./UrlCopy";
+import { Tables } from "@/utils/supabase/database.types";
+import { MethodBadge } from "@/components/MethodBadge";
+import { ColorSquare } from "@/components/ColorSquare";
+import { UrlCopy } from "@/app/(layout)/services/[id]/endpoints/[endpointId]/components/UrlCopy";
 import Link from "next/link";
 import { env } from "next-runtime-env";
 

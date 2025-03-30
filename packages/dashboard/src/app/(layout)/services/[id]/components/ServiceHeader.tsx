@@ -1,11 +1,11 @@
-import { Badge } from "../../../../../components/ui/badge";
-import { Button } from "../../../../../components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {AlertCircle, PlusCircle} from "lucide-react";
-import { Tables } from "../../../../../utils/supabase/database.types";
+import { Tables } from "@/utils/supabase/database.types";
 import { FC } from "react";
 import Link from 'next/link';
-import { ColorSquare } from "../../../../../components/ColorSquare";
-import {Alert, AlertDescription, AlertTitle} from "../../../../../components/ui/alert";
+import { ColorSquare } from "@/components/ColorSquare";
+import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
 
 type Props = {
     service: Tables<'services'>

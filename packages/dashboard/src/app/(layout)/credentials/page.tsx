@@ -1,8 +1,8 @@
-import { createClient } from "../../../utils/supabase/server";
-import { generateApiKey } from "../../../utils/generateApiKey";
-import { Separator } from "../../../components/ui/separator";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../../components/ui/card";
-import { ApiKeyDisplay } from "src/app/(layout)/credentials/components/ApiKeyDisplay";
+import { createClient } from "@/utils/supabase/server";
+import { generateApiKey } from "@/utils/generateApiKey";
+import { Separator } from "@/components/ui/separator";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ApiKeyDisplay } from "./components/ApiKeyDisplay";
 import { env } from "next-runtime-env";
 
 export default async function PrivatePage() {

@@ -35,8 +35,11 @@ export type Database = {
           cache_enabled: boolean
           cache_ttl_s: number | null
           created_at: string | null
+          custom_headers: Json | null
+          custom_headers_enabled: boolean | null
           data_mapping_enabled: boolean
           data_mapping_function: string | null
+          description: string | null
           fallback_response: Json | null
           fallback_response_enabled: boolean
           fallback_status_code: number | null
@@ -51,15 +54,20 @@ export type Database = {
           retry_count: number
           retry_enabled: boolean
           retry_interval_s: number
+          schema: Json | null
           service_id: number
+          source: string | null
           updated_at: string | null
         }
         Insert: {
           cache_enabled?: boolean
           cache_ttl_s?: number | null
           created_at?: string | null
+          custom_headers?: Json | null
+          custom_headers_enabled?: boolean | null
           data_mapping_enabled?: boolean
           data_mapping_function?: string | null
+          description?: string | null
           fallback_response?: Json | null
           fallback_response_enabled?: boolean
           fallback_status_code?: number | null
@@ -74,15 +82,20 @@ export type Database = {
           retry_count?: number
           retry_enabled?: boolean
           retry_interval_s?: number
+          schema?: Json | null
           service_id: number
+          source?: string | null
           updated_at?: string | null
         }
         Update: {
           cache_enabled?: boolean
           cache_ttl_s?: number | null
           created_at?: string | null
+          custom_headers?: Json | null
+          custom_headers_enabled?: boolean | null
           data_mapping_enabled?: boolean
           data_mapping_function?: string | null
+          description?: string | null
           fallback_response?: Json | null
           fallback_response_enabled?: boolean
           fallback_status_code?: number | null
@@ -97,7 +110,9 @@ export type Database = {
           retry_count?: number
           retry_enabled?: boolean
           retry_interval_s?: number
+          schema?: Json | null
           service_id?: number
+          source?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -110,10 +125,78 @@ export type Database = {
           },
         ]
       }
+      endpoints_response_schema_history: {
+        Row: {
+          created_at: string | null
+          endpoint_id: number
+          id: number
+          schema: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          endpoint_id: number
+          id?: never
+          schema?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          endpoint_id?: number
+          id?: never
+          schema?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "endpoints_response_schema_history_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      incidents: {
+        Row: {
+          created_at: string | null
+          details: Json
+          endpoint_id: number
+          id: number
+          resolved: boolean | null
+          title: string
+          type: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details: Json
+          endpoint_id: number
+          id?: never
+          resolved?: boolean | null
+          title: string
+          type?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json
+          endpoint_id?: number
+          id?: never
+          resolved?: boolean | null
+          title?: string
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "incidents_endpoint_id_fkey"
+            columns: ["endpoint_id"]
+            isOneToOne: false
+            referencedRelation: "endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       logs: {
         Row: {
           cache_hit: boolean
           correlation_id: string
+          created_at: string
           endpoint_id: number
           error: Json | null
           finished_at: string
@@ -134,6 +217,7 @@ export type Database = {
         Insert: {
           cache_hit?: boolean
           correlation_id: string
+          created_at?: string
           endpoint_id: number
           error?: Json | null
           finished_at: string
@@ -154,6 +238,7 @@ export type Database = {
         Update: {
           cache_hit?: boolean
           correlation_id?: string
+          created_at?: string
           endpoint_id?: number
           error?: Json | null
           finished_at?: string
@@ -191,6 +276,7 @@ export type Database = {
           description: string | null
           id: number
           name: string
+          source: string | null
           updated_at: string | null
           user_id: string
         }
@@ -203,6 +289,7 @@ export type Database = {
           description?: string | null
           id?: number
           name: string
+          source?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -215,6 +302,7 @@ export type Database = {
           description?: string | null
           id?: number
           name?: string
+          source?: string | null
           updated_at?: string | null
           user_id?: string
         }
@@ -251,6 +339,7 @@ export type Database = {
           p_service_name: string
           p_user_id: string
           p_endpoint_name: string
+          p_method: string
         }
         Returns: Json
       }

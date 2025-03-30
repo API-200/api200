@@ -14,6 +14,7 @@ export async function retrieveServiceRouteData(metadata: {
     serviceName: string;
     endpointName: string;
     userId: string;
+    method: string;
 }) {
     const cacheKey = generateRouteHash(metadata);
 
@@ -32,6 +33,7 @@ export async function retrieveServiceRouteData(metadata: {
         {
             p_service_name: metadata.serviceName,
             p_user_id: metadata.userId,
+            p_method: metadata.method,
             p_endpoint_name: `/${metadata.endpointName}`,
         },
     );

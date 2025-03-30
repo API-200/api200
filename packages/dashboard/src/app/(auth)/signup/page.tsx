@@ -5,15 +5,15 @@ import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { createClient } from "../../../utils/supabase/client"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../../components/ui/card"
-import { Input } from "../../../components/ui/input"
-import { Button } from "../../../components/ui/button"
-import { Separator } from "../../../components/ui/separator"
-import { Alert, AlertDescription, AlertTitle } from "../../../components/ui/alert"
+import { createClient } from "@/utils/supabase/client"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Separator } from "@/components/ui/separator"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { AlertCircle } from "lucide-react"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../../../components/ui/form"
-import FEATURES from "../../../config/features";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import FEATURES from "@/config/features";
 
 // Form validation schema
 const signUpSchema = z.object({

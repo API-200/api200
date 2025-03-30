@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { randomBytes, createCipheriv } from "crypto";
-import {dropServiceEndpointsCaches} from "../utils";
-import { createClient } from '../../../utils/supabase/server';
+import {dropServiceEndpointsCaches} from "@/app/api/utils";
+import { createClient } from '@/utils/supabase/server';
 import { env } from 'next-runtime-env';
 
 const ENCRYPTION_KEY = env('ENCRYPTION_KEY')!;
