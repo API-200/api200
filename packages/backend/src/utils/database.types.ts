@@ -35,6 +35,8 @@ export type Database = {
           cache_enabled: boolean
           cache_ttl_s: number | null
           created_at: string | null
+          custom_headers: Json | null
+          custom_headers_enabled: boolean | null
           data_mapping_enabled: boolean
           data_mapping_function: string | null
           description: string | null
@@ -61,6 +63,8 @@ export type Database = {
           cache_enabled?: boolean
           cache_ttl_s?: number | null
           created_at?: string | null
+          custom_headers?: Json | null
+          custom_headers_enabled?: boolean | null
           data_mapping_enabled?: boolean
           data_mapping_function?: string | null
           description?: string | null
@@ -87,6 +91,8 @@ export type Database = {
           cache_enabled?: boolean
           cache_ttl_s?: number | null
           created_at?: string | null
+          custom_headers?: Json | null
+          custom_headers_enabled?: boolean | null
           data_mapping_enabled?: boolean
           data_mapping_function?: string | null
           description?: string | null

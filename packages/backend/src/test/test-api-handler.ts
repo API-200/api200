@@ -44,5 +44,10 @@ export const createTestRouter = () => {
         }
     })
 
+    router.get('/test/headers', async (ctx) => {
+        ctx.status = 200;
+        ctx.body = JSON.stringify(ctx.headers)
+    })
+
     return router;
 };

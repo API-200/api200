@@ -28,7 +28,9 @@ export async function POST(req: any) {
                 mock_response: data.mockResponse,
                 mock_status_code: data.mockStatusCode ? data.mockStatusCode : 0,
                 service_id: data.serviceId,
-                regex_path: '^' + data.name.replace(/{[^}]+}/g, '([^/]+)') + '$'
+                regex_path: '^' + data.name.replace(/{[^}]+}/g, '([^/]+)') + '$',
+                custom_headers_enabled: data.customHeadersEnabled,
+                custom_headers: data.customHeaders,
             })
             .select()
             .single();
@@ -71,7 +73,9 @@ export async function PUT(req: any) {
                 mock_response: data.mockResponse,
                 mock_status_code: data.mockStatusCode ? data.mockStatusCode : 0,
                 service_id: data.serviceId,
-                regex_path: '^' + data.name.replace(/{[^}]+}/g, '([^/]+)') + '$'
+                regex_path: '^' + data.name.replace(/{[^}]+}/g, '([^/]+)') + '$',
+                custom_headers_enabled: data.customHeadersEnabled,
+                custom_headers: data.customHeaders,
             })
             .eq('id', endpointId);
 
