@@ -334,24 +334,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_route_data:
-        | {
-            Args: {
-              p_service_name: string
-              p_user_id: string
-              p_endpoint_name: string
-            }
-            Returns: Json
-          }
-        | {
-            Args: {
-              p_service_name: string
-              p_user_id: string
-              p_endpoint_name: string
-              p_method: string
-            }
-            Returns: Json
-          }
+      get_route_data: {
+        Args: {
+          p_service_name: string
+          p_user_id: string
+          p_endpoint_name: string
+          p_method: string
+        }
+        Returns: Json
+      }
       increment_usage: {
         Args: {
           p_user_id: string

@@ -39,7 +39,7 @@ export const createApiHandlerRouter = () => {
             const metadata = {
                 serviceName: ctx.params.serviceName,
                 endpointName: ctx.params.endpointName,
-                method: ctx.params.method,
+                method: ctx.method,
                 userId: keyData.user_id,
             };
 
@@ -71,7 +71,7 @@ export const createApiHandlerRouter = () => {
             );
             fallbackData = extractFallbackData(endpointData);
 
-            let requestHeaders = prepareHeaders(ctx);
+            let requestHeaders = prepareHeaders(ctx, endpointData.custom_headers_enabled, endpointData.custom_headers);
             let axiosConfig = prepareAxiosConfig(
                 ctx,
                 requestHeaders,
@@ -93,7 +93,7 @@ export const createApiHandlerRouter = () => {
                 endpointId: endpointData.id,
                 startTime: new Date(),
                 reqBody: ctx.request.body,
-                reqHeaders: prepareHeaders(ctx),
+                reqHeaders: requestHeaders,
                 ip: ctx.request.ip,
                 reqUrl: axiosConfig.url!,
             };
