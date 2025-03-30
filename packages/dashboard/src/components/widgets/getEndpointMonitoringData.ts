@@ -67,16 +67,13 @@ const generateTimeSlots = (dateRange: DateRange): TimeSeriesDataPoint[] => {
 
     let totalSlots = 24 // Default for 24h
     let hourIncrement = 1
-    let format = "HH:00" // Format as "HH:00" for hourly
 
     if (dateRange === "7d") {
         totalSlots = 7
         hourIncrement = 24 // Daily increments
-        format = "MMM dd" // Format as "Jan 01"
     } else if (dateRange === "30d") {
         totalSlots = 30
         hourIncrement = 24 // Daily increments
-        format = "MMM dd" // Format as "Jan 01"
     }
 
     for (let i = totalSlots - 1; i >= 0; i--) {

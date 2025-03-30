@@ -1,6 +1,6 @@
 "use client"
 
-import { AlertTriangle, ArrowDown, ArrowUp, Server } from "lucide-react"
+import {  ArrowDown, ArrowUp, Server } from "lucide-react"
 import { useMemo } from "react"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"

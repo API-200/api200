@@ -33,7 +33,6 @@ export default function Incidents() {
             }
 
             try {
-                const { data: user } = await supabase.auth.getUser()
                 const { data: incidentsData, error: incidentsError } = await supabase
                     .from("incidents")
                     .select(`*, endpoint:endpoints(*, service:services(*))`)

@@ -7,7 +7,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator
 } from "@/components/ui/breadcrumb";
-import { ChevronRight, Construction } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EndpointHeader } from "@/app/(layout)/services/[id]/endpoints/[endpointId]/components/EndpointHeader";
 import CodeExample from "@/app/(layout)/services/[id]/endpoints/[endpointId]/components/CodeExample";
