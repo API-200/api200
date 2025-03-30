@@ -6,7 +6,8 @@ import {
     RequestProcessingMetadata,
     saveLog,
 } from '../logging';
-import Sentry from '@sentry/node';
+import Sentry, { captureException } from '@sentry/node';
+import { supabase } from '@utils/supabase';
 
 const isValidHttpStatusCode = (status: unknown): boolean => {
     if (typeof status !== 'number' || !Number.isFinite(status)) {
@@ -47,7 +48,7 @@ export function handleGlobalError(
                 undefined,
                 status
             );
-            saveLog(logData);
+            saveLog(logData).then(() => saveIfIncident(requestMetadata.endpointId, status, typedError.message));
         }
         return;
     }
@@ -64,7 +65,7 @@ export function handleGlobalError(
             undefined,
             status
         );
-        saveLog(logData);
+        saveLog(logData).then(() => saveIfIncident(requestMetadata.endpointId, status, typedError.message));
     }
 
     ctx.status = status;
@@ -73,4 +74,38 @@ export function handleGlobalError(
         details: typedError.response?.data,
         api200: 'This is not API200 error. It occurred in your API. Check details',
     };
+}
+
+async function saveIfIncident(endpointId: number, status: number, message: string): Promise<void> {
+    try {
+        const logsBy24h = await supabase.from('logs')
+            .select('res_code', { count: 'exact' })
+            .eq('endpoint_id', endpointId)
+            .eq('res_code', status)
+            .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
+
+        const maxErrorCount = 3;
+
+        if ((logsBy24h?.count ?? 0) >= maxErrorCount) {
+            const existingIncident = await supabase.from('incidents')
+                .select('id')
+                .eq('endpoint_id', endpointId)
+                .eq('resolved', false)
+                .eq('type', status.toString())
+                .maybeSingle();
+
+            if (!existingIncident.data) {
+                await supabase.from('incidents').insert({
+                    endpoint_id: endpointId,
+                    title: `Error ${status}`,
+                    details: message,
+                    type: status.toString(),
+                    resolved: false
+                });
+            }
+        }
+    }
+    catch (error) {
+        captureException(error);
+    }
 }

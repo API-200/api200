@@ -30,3 +30,6 @@ create policy "Incidents: Select" on public.incidents
             WHERE e.id = endpoint_id AND s.user_id = auth.uid()
         )
     );
+
+alter table public.logs
+    add column created_at timestamptz default now() not null;

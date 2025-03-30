@@ -35,6 +35,8 @@ export type Database = {
           cache_enabled: boolean
           cache_ttl_s: number | null
           created_at: string | null
+          custom_headers: Json | null
+          custom_headers_enabled: boolean | null
           data_mapping_enabled: boolean
           data_mapping_function: string | null
           description: string | null
@@ -61,6 +63,8 @@ export type Database = {
           cache_enabled?: boolean
           cache_ttl_s?: number | null
           created_at?: string | null
+          custom_headers?: Json | null
+          custom_headers_enabled?: boolean | null
           data_mapping_enabled?: boolean
           data_mapping_function?: string | null
           description?: string | null
@@ -87,6 +91,8 @@ export type Database = {
           cache_enabled?: boolean
           cache_ttl_s?: number | null
           created_at?: string | null
+          custom_headers?: Json | null
+          custom_headers_enabled?: boolean | null
           data_mapping_enabled?: boolean
           data_mapping_function?: string | null
           description?: string | null
@@ -190,6 +196,7 @@ export type Database = {
         Row: {
           cache_hit: boolean
           correlation_id: string
+          created_at: string
           endpoint_id: number
           error: Json | null
           finished_at: string
@@ -210,6 +217,7 @@ export type Database = {
         Insert: {
           cache_hit?: boolean
           correlation_id: string
+          created_at?: string
           endpoint_id: number
           error?: Json | null
           finished_at: string
@@ -230,6 +238,7 @@ export type Database = {
         Update: {
           cache_hit?: boolean
           correlation_id?: string
+          created_at?: string
           endpoint_id?: number
           error?: Json | null
           finished_at?: string
