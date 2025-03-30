@@ -196,6 +196,7 @@ export type Database = {
         Row: {
           cache_hit: boolean
           correlation_id: string
+          created_at: string
           endpoint_id: number
           error: Json | null
           finished_at: string
@@ -216,6 +217,7 @@ export type Database = {
         Insert: {
           cache_hit?: boolean
           correlation_id: string
+          created_at?: string
           endpoint_id: number
           error?: Json | null
           finished_at: string
@@ -236,6 +238,7 @@ export type Database = {
         Update: {
           cache_hit?: boolean
           correlation_id?: string
+          created_at?: string
           endpoint_id?: number
           error?: Json | null
           finished_at?: string

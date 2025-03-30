@@ -37,7 +37,6 @@ export default function Incidents() {
                 const { data: incidentsData, error: incidentsError } = await supabase
                     .from("incidents")
                     .select(`*, endpoint:endpoints(*, service:services(*))`)
-                    .eq('endpoint.service.user_id', user.user?.id)
                     .order("created_at", { ascending: false })
                     .range(isLoadMore ? incidents.length : 0, isLoadMore ? incidents.length + PAGE_SIZE : PAGE_SIZE)
                     .limit(PAGE_SIZE + 1)
@@ -141,6 +140,7 @@ export default function Incidents() {
                             columns={columns}
                             data={incidents}
                             onRowClick={(incident) => setSelectedIncident(incident)}
+                            placeholder='No incidents...'
                         />
                         {hasMore && (
                             <div className="mt-4 w-full">
