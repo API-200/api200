@@ -29,10 +29,12 @@ export const createApiHandlerRouter = () => {
         const correlationId = randomUUID();
         let fallbackData: FallbackData | null = null;
         let requestMetadata: RequestProcessingMetadata | null = null;
+        let keyData: { user_id: string } | null = null;
+        let endpointData: any = null;
 
         try {
             // Validate API key
-            const keyData = await validateApiKey(ctx);
+            keyData = await validateApiKey(ctx);
             if (!keyData) return;
 
             // Get metadata
@@ -64,7 +66,7 @@ export const createApiHandlerRouter = () => {
                 return;
             }
 
-            const endpointData = (routeData as any).endpoints[0];
+            endpointData = (routeData as any).endpoints[0];
             endpointData.full_url = getFullUrlWithParams(
                 endpointData,
                 metadata.endpointName,
@@ -155,6 +157,8 @@ export const createApiHandlerRouter = () => {
         } catch (error) {
             Sentry.captureException(error);
             handleGlobalError(
+                keyData!.user_id,
+                endpointData,
                 ctx,
                 error as Error,
                 fallbackData,

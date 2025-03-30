@@ -1,7 +1,7 @@
 import { captureException } from '@sentry/node';
 import axios from 'axios';
 
-export async function sendEmailWithHTML(to: string, subject: string, htmlContent: string) {
+export async function sendEmailWithHtml(to: string, subject: string, htmlContent: string) {
     try {
         await axios.post('https://api.brevo.com/v3/smtp/email', {
             sender: {

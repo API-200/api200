@@ -1,10 +1,10 @@
 import { captureException } from '@sentry/node';
 import { supabase } from '@utils/supabase';
 import { AssertionError, deepStrictEqual } from 'assert';
-import { sendEmailWithHTML } from './mailer';
+import { sendEmailWithHtml } from './mailer';
 import { prepareHtml } from '@utils/templatesProcessor';
 import { Tables } from '@utils/database.types';
-import { getSchemaChangedTemplate } from 'src/emails';
+import { getIncidentTemplate } from 'src/emails';
 import FEATURES from 'src/features';
 
 export async function checkResponseSchema(userId: string, endpointData: Tables<'endpoints'>, responseSchema: any) {
@@ -55,14 +55,17 @@ export async function checkResponseSchema(userId: string, endpointData: Tables<'
                 if (FEATURES.EMAILS) {
                     const userData = await supabase.auth.admin.getUserById(userId);
                     if (userData.data.user?.email) {
-                        const template = await getSchemaChangedTemplate();
+                        const template = await getIncidentTemplate();
                         const html = prepareHtml(template, {
+                            title: 'Response schema has changed',
+                            info: 'Response schema has changed on the',
+                            description: 'Please review the updates to ensure compatibility with your integration.',
                             endpointName: endpointData.name,
                             endpointFullUrl: endpointData.full_url,
                             detailsUrl: `${process.env.API200_FRONTEND_URL}/services/${endpointData.service_id}/endpoints/${endpointData.id}`
                         });
 
-                        await sendEmailWithHTML(userData.data.user.email, '[API 200] Response schema has changed!', html);
+                        await sendEmailWithHtml(userData.data.user.email, '[API 200] Response schema has changed!', html);
                     }
                 }
             }
