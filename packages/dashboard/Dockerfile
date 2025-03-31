@@ -11,7 +11,6 @@ WORKDIR /app
 # Install dependencies based on the preferred package manager
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* .npmrc* ./
 RUN corepack enable pnpm && pnpm i --frozen-lockfile
-
 # Rebuild the source code only when needed
 FROM base AS builder
 WORKDIR /app
