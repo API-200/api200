@@ -2,10 +2,9 @@ import { Clock } from "lucide-react"
 import { BarChart, Bar, ResponsiveContainer } from "recharts"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-    AverageResponseTimeProps
-} from "src/app/(layout)/services/[id]/endpoints/[endpointId]/components/monitoring/getMonitoringData";
+
 import {formatRequestDuration} from "@/utils/formatters";
+import {AverageResponseTimeProps} from "@/components/widgets/getEndpointMonitoringData";
 
 
 
