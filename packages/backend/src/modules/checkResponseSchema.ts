@@ -4,8 +4,8 @@ import { AssertionError, deepStrictEqual } from 'assert';
 import { sendEmailWithHtml } from './mailer';
 import { prepareHtml } from '@utils/templatesProcessor';
 import { Tables } from '@utils/database.types';
-import { getIncidentTemplate } from 'src/emails';
-import FEATURES from 'src/features';
+import { getIncidentTemplate } from '@emails/index';
+import FEATURES from '@config/features';
 
 export async function checkResponseSchema(userId: string, endpointData: Tables<'endpoints'>, responseSchema: any) {
     try {
