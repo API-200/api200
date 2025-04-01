@@ -12,7 +12,7 @@ const FEATURES = {
         ENABLE_CANNY: !isSelfHosted,
         ENABLE_SENTRY: !isSelfHosted,
     },
-    EMAILS: false,
+    EMAILS: !isSelfHosted,
 }
 
 export default FEATURES
