@@ -20,7 +20,7 @@ import Sentry from '@sentry/node';
 import { getFullUrlWithParams } from './modules/base/mapUrlParams';
 import { applyThirdPartyAuth } from './modules/applyThirdPartyAuth';
 import { prepareAxiosConfig } from './modules/base/prepareAxiosConfig';
-import FEATURES from './features';
+import FEATURES from '@config/features';
 
 export const createApiHandlerRouter = () => {
     const router = new Router();

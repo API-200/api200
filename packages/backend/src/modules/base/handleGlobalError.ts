@@ -10,8 +10,8 @@ import Sentry, { captureException } from '@sentry/node';
 import { supabase } from '@utils/supabase';
 import { sendEmailWithHtml } from '@modules/mailer';
 import { prepareHtml } from '@utils/templatesProcessor';
-import { getIncidentTemplate } from 'src/emails';
-import FEATURES from 'src/features';
+import { getIncidentTemplate } from '@emails/index';
+import FEATURES from '@config/features';
 import { Tables } from '@utils/database.types';
 
 const isValidHttpStatusCode = (status: unknown): boolean => {

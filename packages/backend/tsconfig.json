@@ -41,6 +41,12 @@
       ],
       "@test/*": [
         "src/test/*"
+      ],
+      "@emails/*": [
+        "src/emails/*"
+      ],
+      "@config/*": [
+        "src/config/*"
       ]
     },
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
