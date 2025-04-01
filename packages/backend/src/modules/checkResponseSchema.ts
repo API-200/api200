@@ -9,7 +9,7 @@ import FEATURES from 'src/features';
 
 export async function checkResponseSchema(userId: string, endpointData: Tables<'endpoints'>, responseSchema: any) {
     try {
-        const saveSchema = async (oldSchema: any, newSchema: any) => {
+        const saveSchema = async (oldSchema: any, newSchema: any, saveIncident: boolean = false) => {
             await supabase
                 .from('endpoints_response_schema_history')
                 .insert({
@@ -17,17 +17,19 @@ export async function checkResponseSchema(userId: string, endpointData: Tables<'
                     schema: responseSchema
                 });
 
-            await supabase
-                .from('incidents')
-                .insert({
-                    endpoint_id: endpointData.id,
-                    type: 'SCHEMA_CHANGED',
-                    title: 'Response schema changed',
-                    details: {
-                        oldSchema,
-                        newSchema
-                    }
-                });
+            if (saveIncident) {
+                await supabase
+                    .from('incidents')
+                    .insert({
+                        endpoint_id: endpointData.id,
+                        type: 'SCHEMA_CHANGED',
+                        title: 'Response schema changed',
+                        details: {
+                            oldSchema,
+                            newSchema
+                        }
+                    });
+            }
         }
 
         const latestSchemaResponse = await supabase
@@ -50,7 +52,7 @@ export async function checkResponseSchema(userId: string, endpointData: Tables<'
         }
         catch (e: unknown) {
             if (e instanceof AssertionError) {
-                await saveSchema(latestSchema, responseSchema);
+                await saveSchema(latestSchema, responseSchema, true);
 
                 if (FEATURES.EMAILS) {
                     const userData = await supabase.auth.admin.getUserById(userId);
