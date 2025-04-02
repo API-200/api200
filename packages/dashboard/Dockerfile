@@ -22,7 +22,7 @@ COPY . .
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN corepack enable pnpm && pnpm run build
+RUN corepack enable pnpm && NEXT_DISABLE_ESLINT_DURING_BUILD=true pnpm run build
 
 # Production image, copy all the files and run next
 FROM base AS runner

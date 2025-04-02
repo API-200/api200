@@ -1,8 +1,6 @@
-version: '3.8'  # Specify a valid Compose file version
-
 services:
   backend:
-    image: api200/backend
+    image: api200/backend:latest
     ports:
       - "8080:8080"
     env_file:
@@ -16,7 +14,7 @@ services:
         condition: service_healthy
 
   frontend:
-    image: api200/frontend
+    image: api200/frontend:latest
     ports:
       - "3000:3000"
     env_file:
