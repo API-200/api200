@@ -8,13 +8,13 @@
     <a href="https://github.com/API-200/api200/wiki/Roadmap">Roadmap</a>
 </p>
 
-<div align="center">
-  <img src="https://github.com/API-200/api200/assets/features.png" style="width: 80%;" />
-</div>
-
 ## About API 200
 
 API 200 is all-in-one gateway for managing third-party APIs efficiently. Integrate third-party APIs in minutes with auto-generated code, docs, auth, caching and error handling – so you can focus on what really matters.
+
+<div align="center">
+  <img src="assets/features.png" style="width: 80%;" />
+</div>
 
 ## Key Features
 
