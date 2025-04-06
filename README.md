@@ -1,6 +1,11 @@
-[//]: # (<img src="https://github.com/API-200/api200/assets/features/png" alt="API 200 Logo">)
+<img src="assets/banner.png" alt="API 200 Logo" style="width:100%; display:block;">
 
 <p align="center" style="margin-top: 20px">
+    The Open Source API Integration Platform.
+    <br>
+    <a href="https://documenso.com"><strong>Learn more »</strong></a>
+    <br />
+    <br />
     <a href="https://api200.co">Website</a>
     ·
     <a href="https://github.com/API-200/api200/issues">Issues</a>
@@ -10,7 +15,8 @@
 
 ## About API 200
 
-API 200 is all-in-one gateway for managing third-party APIs efficiently. Integrate third-party APIs in minutes with auto-generated code, docs, auth, caching and error handling – so you can focus on what really matters.
+API 200 is all-in-one gateway for managing third-party APIs efficiently. Integrate third-party APIs in minutes with
+auto-generated code, docs, auth, caching and error handling – so you can focus on what really matters.
 
 <div align="center">
   <img src="assets/features.png" style="width: 80%;" />
@@ -19,6 +25,7 @@ API 200 is all-in-one gateway for managing third-party APIs efficiently. Integra
 ## Key Features
 
 ✅ **Fast API Setup:**
+
 - Authentication management
 - Response caching
 - Automatic retries
@@ -40,21 +47,25 @@ API 200 is all-in-one gateway for managing third-party APIs efficiently. Integra
 ✅ **Comprehensive Logging**
 
 ### Features in Progress:
+
 - API to LLM MCP
 - More authentication methods
 
 [//]: # (## Interactive Demo)
 
 [//]: # ()
+
 [//]: # (Try out our interactive demo to see API 200 in action: [Try Demo]&#40;PLACEHOLDER_DEMO_LINK&#41;)
 
 ## Quickstart
 
-Get started immediately with our managed version of API 200. Users can go to our cloud platform and start integrating API endpoints instantly without any setup or infrastructure management. Visit [API200.co](https://api200.co) to begin.
+Get started immediately with our managed version of API 200. Users can go to our cloud platform and start integrating
+API endpoints instantly without any setup or infrastructure management. Visit [API200.co](https://api200.co) to begin.
 
 ## Self-Hosted Setup
 
 ### Prerequisites
+
 - Docker
 - Docker Compose
 - Node.js
@@ -81,6 +92,7 @@ docker-compose up -d
 > **⚠️ Note:** Localhost setup requires host file modification (`127.0.0.1 kong`), needing admin privileges.
 
 ### Access Your Installation
+
 - Frontend: `http://<your-hostname-or-ip>:3000`
 - API Handler: `http://<your-hostname-or-ip>:8080`
 
@@ -112,4 +124,5 @@ For support, custom implementations, or any other inquiries:
 
 ## License
 
-API 200 is licensed under Sustainable Use License. See the [LICENSE](https://github.com/API-200/api200/blob/main/LICENCE.md) file for more details.
+API 200 is licensed under Sustainable Use License. See
+the [LICENSE](https://github.com/API-200/api200/blob/main/LICENCE.md) file for more details.
