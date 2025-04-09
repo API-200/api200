@@ -1,20 +1,21 @@
 "use client"
 
-import {useState} from "react"
-import {zodResolver} from "@hookform/resolvers/zod"
-import {useForm} from "react-hook-form"
+import { useEffect, useState } from "react"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 import * as z from "zod"
 
-import {Button} from "@/components/ui/button"
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
-import {Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form"
-import {Input} from "@/components/ui/input"
-import {Textarea} from "@/components/ui/textarea"
-import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
-import {Switch} from "@/components/ui/switch"
-import {toast} from "sonner"
-import {Loader2} from "lucide-react"
-import {useRouter} from "next/navigation"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Switch } from "@/components/ui/switch"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { EXTERNAL_ENDPOINTS_SOURCES } from '@/utils/constants'
 
 const formSchema = z.object({
     name: z.string()
@@ -29,6 +30,8 @@ const formSchema = z.object({
     headerName: z.string().optional().nullable(),
     queryParamName: z.string().optional().nullable(),
     token: z.string().optional().nullable(),
+    isMcpEnabled: z.boolean().optional(),
+    source: z.string().optional().nullable(),
 })
 
 interface AuthConfig {
@@ -48,11 +51,13 @@ interface ServiceFormProps {
         auth_enabled: boolean;
         auth_type?: "api_key" | "token";
         auth_config?: AuthConfig;
+        is_mcp_enabled?: boolean;
+        source?: string | null;
     };
     mode?: 'create' | 'update';
 }
 
-export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps) {
+export function APIServiceForm({ initialData, mode = 'create' }: ServiceFormProps) {
     const router = useRouter()
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -69,14 +74,19 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
             headerName: initialData?.auth_config?.api_key_header ?? "",
             queryParamName: initialData?.auth_config?.api_key_param ?? "",
             token: initialData?.auth_config?.bearer_token ?? "",
+            isMcpEnabled: initialData?.is_mcp_enabled ?? false,
+            source: initialData?.source ?? null,
         },
     })
 
-    const {watch} = form
+    const { watch } = form
 
     const enableAuth = watch("enableAuth")
     const authType = watch("authType")
     const apiKeyLocation = watch("apiKeyLocation")
+    const source = watch("source")
+
+    const isImportedService = EXTERNAL_ENDPOINTS_SOURCES.includes(source ?? '')
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
@@ -98,6 +108,7 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
                     api_key_param: values.queryParamName,
                     bearer_token: values.token,
                 },
+                is_mcp_enabled: values.isMcpEnabled
             };
 
             const response = await fetch("/api/service", {
@@ -144,7 +155,7 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
                         <FormField
                             control={form.control}
                             name="name"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Name</FormLabel>
                                     <FormControl>
@@ -152,14 +163,14 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
                                     </FormControl>
                                     <FormDescription>Enter a name for your API service.
                                         This will be used as part of route for your requests</FormDescription>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
                         <FormField
                             control={form.control}
                             name="description"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Description</FormLabel>
                                     <FormControl>
@@ -167,35 +178,35 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
                                     </FormControl>
                                     <FormDescription>Provide a brief description of your API service
                                         (optional)</FormDescription>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
                         <FormField
                             control={form.control}
                             name="baseUrl"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Base URL</FormLabel>
                                     <FormControl>
                                         <Input placeholder="https://api.example.com" {...field} />
                                     </FormControl>
                                     <FormDescription>Enter the base URL for your API service</FormDescription>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />
                         <FormField
                             control={form.control}
                             name="enableAuth"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                                     <div className="space-y-0.5">
                                         <FormLabel className="text-base">Enable API Auth</FormLabel>
                                         <FormDescription>Turn on authentication for your API service</FormDescription>
                                     </div>
                                     <FormControl>
-                                        <Switch checked={field.value} onCheckedChange={field.onChange}/>
+                                        <Switch checked={field.value} onCheckedChange={field.onChange} />
                                     </FormControl>
                                 </FormItem>
                             )}
@@ -205,13 +216,13 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
                                 <FormField
                                     control={form.control}
                                     name="authType"
-                                    render={({field}) => (
+                                    render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Auth Type</FormLabel>
                                             <Select onValueChange={field.onChange} defaultValue={field.value!}>
                                                 <FormControl>
                                                     <SelectTrigger>
-                                                        <SelectValue placeholder="Select auth type"/>
+                                                        <SelectValue placeholder="Select auth type" />
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
@@ -221,7 +232,7 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
                                             </Select>
                                             <FormDescription>Choose the authentication type for your
                                                 API</FormDescription>
-                                            <FormMessage/>
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 />
@@ -230,30 +241,30 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
                                         <FormField
                                             control={form.control}
                                             name="apiKey"
-                                            render={({field}) => (
+                                            render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>API Key</FormLabel>
                                                     <FormControl>
                                                         <Input type="password"
-                                                               placeholder="Enter your API key" {...field}
-                                                               value={field.value as string}/>
+                                                            placeholder="Enter your API key" {...field}
+                                                            value={field.value as string} />
                                                     </FormControl>
                                                     <FormDescription>Provide the API key for
                                                         authentication</FormDescription>
-                                                    <FormMessage/>
+                                                    <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
                                         <FormField
                                             control={form.control}
                                             name="apiKeyLocation"
-                                            render={({field}) => (
+                                            render={({ field }) => (
                                                 <FormItem>
                                                     <FormLabel>API Key Location</FormLabel>
                                                     <Select onValueChange={field.onChange} defaultValue={field.value!}>
                                                         <FormControl>
                                                             <SelectTrigger>
-                                                                <SelectValue placeholder="Select API key location"/>
+                                                                <SelectValue placeholder="Select API key location" />
                                                             </SelectTrigger>
                                                         </FormControl>
                                                         <SelectContent>
@@ -263,7 +274,7 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
                                                     </Select>
                                                     <FormDescription>Choose where to include the API
                                                         key</FormDescription>
-                                                    <FormMessage/>
+                                                    <FormMessage />
                                                 </FormItem>
                                             )}
                                         />
@@ -271,16 +282,16 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
                                             <FormField
                                                 control={form.control}
                                                 name="headerName"
-                                                render={({field}) => (
+                                                render={({ field }) => (
                                                     <FormItem>
                                                         <FormLabel>Header Name</FormLabel>
                                                         <FormControl>
                                                             <Input placeholder="X-API-Key" {...field}
-                                                                   value={field.value as string}/>
+                                                                value={field.value as string} />
                                                         </FormControl>
                                                         <FormDescription>Enter the name of the header for the API
                                                             key</FormDescription>
-                                                        <FormMessage/>
+                                                        <FormMessage />
                                                     </FormItem>
                                                 )}
                                             />
@@ -289,16 +300,16 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
                                             <FormField
                                                 control={form.control}
                                                 name="queryParamName"
-                                                render={({field}) => (
+                                                render={({ field }) => (
                                                     <FormItem>
                                                         <FormLabel>Query Parameter Name</FormLabel>
                                                         <FormControl>
                                                             <Input placeholder="api_key" {...field}
-                                                                   value={field.value as string}/>
+                                                                value={field.value as string} />
                                                         </FormControl>
                                                         <FormDescription>Enter the name of the query parameter for the
                                                             API key</FormDescription>
-                                                        <FormMessage/>
+                                                        <FormMessage />
                                                     </FormItem>
                                                 )}
                                             />
@@ -309,25 +320,45 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
                                     <FormField
                                         control={form.control}
                                         name="token"
-                                        render={({field}) => (
+                                        render={({ field }) => (
                                             <FormItem>
                                                 <FormLabel>Token</FormLabel>
                                                 <FormControl>
                                                     <Input type="password" placeholder="Enter your token" {...field}
-                                                           value={field.value as string}/>
+                                                        value={field.value as string} />
                                                 </FormControl>
                                                 <FormDescription>
                                                     Provide the token for authentication. It will be sent in
                                                     the &quot;Authorization&quot; header
                                                     with &quot;Bearer&quot; prefix.
                                                 </FormDescription>
-                                                <FormMessage/>
+                                                <FormMessage />
                                             </FormItem>
                                         )}
                                     />
                                 )}
                             </>
                         )}
+                        <FormField
+                            control={form.control}
+                            name="isMcpEnabled"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                                    <div className="space-y-0.5">
+                                        <FormLabel className={"text-base " + (isImportedService ? "" : "text-muted-foreground")}>
+                                            Enable MCP {isImportedService ? "(Experimental)" : "(Currenly available only for imported services)"}
+                                        </FormLabel>
+                                        <FormDescription>
+                                            This will allow to use endpoints in different LLMs&nbsp;
+                                            <a href="https://modelcontextprotocol.io/introduction" target="_blank" className="text-blue-500 hover:underline">(read more)</a>
+                                        </FormDescription>
+                                    </div>
+                                    <FormControl>
+                                        <Switch disabled={!isImportedService} checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
                         <Button
                             type="submit"
                             disabled={isSubmitting}
@@ -335,7 +366,7 @@ export function APIServiceForm({initialData, mode = 'create'}: ServiceFormProps)
                         >
                             {isSubmitting ? (
                                 <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin"/>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                     {mode === 'create' ? 'Creating...' : 'Updating...'}
                                 </>
                             ) : (
