@@ -2,7 +2,6 @@ import './utils/instrument'
 import Koa from 'koa';
 import Router from 'koa-router';
 import { createApiHandlerRouter } from './api-handler';
-import { createSSERouter } from './mcp-handler';
 import { config } from './utils/config';
 import bodyParser from 'koa-bodyparser';
 import { createTestRouter } from './test/test-api-handler';
@@ -19,10 +18,8 @@ const router = new Router();
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 const apiHandler = createApiHandlerRouter();
-const sseRouter = createSSERouter(); // Create SSE router
 const testRouter = createTestRouter();
 
-app.use(sseRouter.routes()).use(sseRouter.allowedMethods());
 app.use(apiHandler.routes()).use(apiHandler.allowedMethods());
 
 if (isDevelopment) {
