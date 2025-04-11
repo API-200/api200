@@ -6,6 +6,7 @@ import { FC } from "react";
 import Link from 'next/link';
 import { ColorSquare } from "@/components/ColorSquare";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import InfoTooltip from '@/components/ui/info-tooltip';
 
 type Props = {
     service: Tables<'services'>
@@ -20,6 +21,7 @@ export const ServiceHeader: FC<Props> = ({ service, isValidAuth }) => {
                     <div className="flex gap-2 items-center flex-row mb-4">
                         <ColorSquare big name={service.name} />
                         <h1 className="text-3xl font-bold tracking-tight">{service.name}</h1>
+                        {service.description && <InfoTooltip text={service.description} />}
                     </div>
                     <p className="text-gray-600 mb-1">{service.description}</p>
                     <p className="text-sm text-gray-500 mb-2">Base URL: {service.base_url}</p>
