@@ -24,6 +24,7 @@
     "@sentry/node": "^9.1.0",
     "@sentry/profiling-node": "^9.1.0",
     "@supabase/supabase-js": "^2.48.1",
+    "async-mutex": "^0.5.0",
     "axios": "^1.7.9",
     "cache-manager": "^6.4.0",
     "dotenv": "^16.4.7",
