@@ -350,7 +350,7 @@ export function APIServiceForm({ initialData, mode = 'create' }: ServiceFormProp
                                         </FormLabel>
                                         <FormDescription>
                                             This will allow to use endpoints in different LLMs&nbsp;
-                                            <a href="https://modelcontextprotocol.io/introduction" target="_blank" className="text-blue-500 hover:underline">(read more)</a>
+                                            (<a href="https://modelcontextprotocol.io/introduction" target="_blank" className="text-blue-500 hover:underline">read more</a>)
                                         </FormDescription>
                                     </div>
                                     <FormControl>

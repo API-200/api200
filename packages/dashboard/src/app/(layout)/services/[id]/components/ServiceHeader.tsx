@@ -18,12 +18,11 @@ export const ServiceHeader: FC<Props> = ({ service, isValidAuth }) => {
         <div className={"mb-6"}>
             <div className="flex justify-between items-center">
                 <div className="mb-6">
-                    <div className="flex gap-2 items-center flex-row mb-4">
+                    <div className="flex gap-2 items-center flex-row mb-2">
                         <ColorSquare big name={service.name} />
                         <h1 className="text-3xl font-bold tracking-tight">{service.name}</h1>
                         {service.description && <InfoTooltip text={service.description} />}
                     </div>
-                    <p className="text-gray-600 mb-1">{service.description}</p>
                     <p className="text-sm text-gray-500 mb-2">Base URL: {service.base_url}</p>
                     <div className="flex items-center space-x-2">
                         {service.is_mcp_enabled && <Badge variant="outline">MCP Enabled</Badge>}

@@ -20,13 +20,13 @@ export function EndpointHeader({ endpoint, service }: EndpointHeaderProps) {
     return (
         <div className="flex items-center justify-between mb-6">
             <div>
-                <div className="flex gap-3 items-center flex-row mb-4">
+                <div className="flex gap-3 items-center flex-row mb-2">
                     <ColorSquare big name={service.name} />
                     <h1 className="text-3xl font-bold tracking-tight">{endpoint.name}</h1>
                     <MethodBadge method={endpoint.method} />
                     {endpoint.description && <InfoTooltip text={endpoint.description} />}
                 </div>
-                <p className="text-gray-600 mb-2">Endpoint URL: {endpoint.full_url}</p>
+                <p className="text-sm text-gray-500 mb-2">Endpoint URL: {endpoint.full_url}</p>
                 <div className="flex items-center space-x-2">
                     {endpoint.method.toLowerCase() === 'get' && <Badge
                         variant={endpoint.cache_enabled ? "outline" : "secondary"}>Cache {endpoint.cache_enabled ? "Enabled" : "Disabled"}</Badge>

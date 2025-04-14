@@ -151,10 +151,10 @@ export default function ImportResults({ data, onCancel }: Props) {
             </div>
             <div className="flex flex-row items-center justify-between rounded-lg border p-4 mt-2 mb-4">
                 <div className="space-y-0.5">
-                    <div className="font-semibold">Enable MCP (Experimental)</div>
-                    <div className="text-[1rem] text-muted-foreground">
+                    <div className="">Enable MCP (Experimental)</div>
+                    <div className="text-[0.8rem] text-muted-foreground">
                         This will allow to use endpoints in different LLMs&nbsp;
-                        <a href="https://modelcontextprotocol.io/introduction" target="_blank" className="text-blue-500 hover:underline">(read more)</a>
+                        (<a href="https://modelcontextprotocol.io/introduction" target="_blank" className="text-blue-500 hover:underline">read more</a>)
                     </div>
                 </div>
                 <div>
