@@ -48,7 +48,8 @@ export default function ImportOptions({onImportComplete}: ImportOptionsProps) {
                 const fileText = await file.text();
 
                 const parsedResult = parseSwagger(fileText);
-
+                console.log('parsedResult')
+                console.log(parsedResult)
                 return parsedResult
             } else if (method === "postman" && file) {
 

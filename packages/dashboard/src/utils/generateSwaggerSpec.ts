@@ -1,12 +1,12 @@
 import { Tables } from "@/utils/supabase/database.types";
 import { env } from "next-runtime-env";
 
-//TODO - add accepts & returns, add schema objects
 export const generateSwaggerSpec = (services: Tables<'services'>[], endpoints: Tables<'endpoints'>[], title: string) => {
-    //eslint-disable-next-line
-    const paths: any = {}
-    //eslint-disable-next-line
+    const paths: any = {};
     const tags: any[] = [];
+
+    // For collecting all component schemas from endpoints
+    const allComponentSchemas: Record<string, any> = {};
 
     // Global API Key Security Scheme
     const securitySchemes = {
@@ -30,7 +30,6 @@ export const generateSwaggerSpec = (services: Tables<'services'>[], endpoints: T
                 const method = endpoint.method.toLowerCase();
 
                 // Parse the schema JSON if it exists
-                //eslint-disable-next-line
                 let endpointSchema: any = {};
                 let hasCustomSchema = false;
 
@@ -41,6 +40,12 @@ export const generateSwaggerSpec = (services: Tables<'services'>[], endpoints: T
                             ? JSON.parse(endpoint.schema)
                             : endpoint.schema;
                         hasCustomSchema = true;
+
+                        // Extract component schemas if available
+                        if (endpointSchema.components && endpointSchema.components.schemas) {
+                            // Merge with all component schemas
+                            Object.assign(allComponentSchemas, endpointSchema.components.schemas);
+                        }
                     } catch (error) {
                         console.error(`Failed to parse schema for endpoint ${endpoint.name}:`, error);
                     }
@@ -91,6 +96,7 @@ export const generateSwaggerSpec = (services: Tables<'services'>[], endpoints: T
                 paths[fullPath] = paths[fullPath] || {};
                 paths[fullPath][method] = {
                     tags: [service.name],
+                    summary: endpoint.description || `${method.toUpperCase()} ${endpoint.name}`,
                     description: endpoint.description || `Will call ${endpoint.full_url}`,
                     parameters,
                     requestBody,
@@ -98,6 +104,12 @@ export const generateSwaggerSpec = (services: Tables<'services'>[], endpoints: T
                 };
             });
     });
+
+    // Build the complete OpenAPI specification
+    const components = {
+        schemas: Object.keys(allComponentSchemas).length > 0 ? allComponentSchemas : undefined,
+        securitySchemes
+    };
 
     return {
         openapi: "3.0.0",
@@ -109,7 +121,7 @@ export const generateSwaggerSpec = (services: Tables<'services'>[], endpoints: T
         servers: [{ url: `${env('NEXT_PUBLIC_BACKEND_URL')}/api` }],
         paths,
         tags,
-        components: { securitySchemes },
+        components,
         security: [{ api_key: [] }] // Applies to all operations
     };
 };

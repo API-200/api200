@@ -1,15 +1,23 @@
 import {Tables} from "@/utils/supabase/database.types";
 
 interface SwaggerSchema {
-    swagger: string;
+    swagger?: string;
+    openapi?: string; // Add support for OpenAPI 3.0
     info: {
         title: string;
         description?: string;
         version: string;
     };
-    host: string;
-    basePath: string;
-    schemes: string[];
+    // Swagger 2.0 properties
+    host?: string;
+    basePath?: string;
+    schemes?: string[];
+    // OpenAPI 3.0 properties
+    servers?: {
+        url: string;
+        description?: string;
+        variables?: Record<string, any>;
+    }[];
     paths: {
         [path: string]: {
             [method: string]: {
@@ -19,10 +27,15 @@ interface SwaggerSchema {
                 operationId: string;
                 parameters?: any[];
                 responses: any;
+                requestBody?: any; // Added for OpenAPI 3.0
             }
         }
     };
-    securityDefinitions?: Record<string, any>;
+    securityDefinitions?: Record<string, any>; // Swagger 2.0
+    components?: { // OpenAPI 3.0
+        schemas?: Record<string, any>;
+        securitySchemes?: Record<string, any>;
+    };
 }
 
 export interface ParsedSwaggerResult {
@@ -35,7 +48,6 @@ export interface ParsedSwaggerResult {
  */
 export function parseSwagger(swaggerJson: string): ParsedSwaggerResult {
     try {
-
         const swagger: SwaggerSchema = JSON.parse(swaggerJson);
 
         // Create the service object
@@ -55,9 +67,19 @@ export function parseSwagger(swaggerJson: string): ParsedSwaggerResult {
  * Create a service object based on Swagger info
  */
 function createServiceObject(swagger: SwaggerSchema): Tables<'services'> {
-    // Determine the base URL from host, basePath, and schemes
-    const scheme = getPreferredScheme(swagger.schemes);
-    const baseUrl = `${scheme}://${swagger.host}${swagger.basePath}`;
+    // Determine the base URL based on the specification version
+    let baseUrl = '';
+
+    if (swagger.swagger) {
+        // Swagger 2.0 format
+        const scheme = getPreferredScheme(swagger.schemes);
+        baseUrl = `${scheme}://${swagger.host || ''}${swagger.basePath || ''}`;
+    } else if (swagger.openapi) {
+        // OpenAPI 3.0 format
+        if (swagger.servers && swagger.servers.length > 0) {
+            baseUrl = swagger.servers[0].url;
+        }
+    }
 
     // Determine authentication type
     const {authType, authEnabled, authConfig} = determineAuthSettings(swagger);
@@ -102,21 +124,13 @@ function getPreferredScheme(schemes?: string[]): string {
 }
 
 /**
- * Determine authentication settings from Swagger security definitions
+ * Determine authentication settings from security definitions
  */
 function determineAuthSettings(swagger: SwaggerSchema): {
     authType: 'api_key' | 'token' | null;
     authEnabled: boolean;
     authConfig: any | null;
 } {
-    if (!swagger.securityDefinitions) {
-        return {
-            authType: null,
-            authEnabled: false,
-            authConfig: null
-        };
-    }
-
     // Initialize empty auth config object with the required structure
     const authConfig = {
         api_key: "",
@@ -126,8 +140,21 @@ function determineAuthSettings(swagger: SwaggerSchema): {
         api_key_location: ""
     };
 
+    // Check for security definitions based on the spec version
+    const securityDefinitions = swagger.swagger
+        ? swagger.securityDefinitions
+        : swagger.components?.securitySchemes;
+
+    if (!securityDefinitions) {
+        return {
+            authType: null,
+            authEnabled: false,
+            authConfig: null
+        };
+    }
+
     // Check for API Key authentication
-    const apiKeyDef = Object.entries(swagger.securityDefinitions)
+    const apiKeyDef = Object.entries(securityDefinitions)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .find(([_, def]) => def.type === 'apiKey');
 
@@ -146,7 +173,7 @@ function determineAuthSettings(swagger: SwaggerSchema): {
     }
 
     // Check for OAuth or other token-based authentication
-    const tokenDef = Object.entries(swagger.securityDefinitions)
+    const tokenDef = Object.entries(securityDefinitions)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .find(([_, def]) => def.type === 'oauth2' || def.type === 'http');
 
@@ -163,7 +190,7 @@ function determineAuthSettings(swagger: SwaggerSchema): {
     }
 
     // Handle unsupported auth types
-    const unsupportedAuth = Object.entries(swagger.securityDefinitions)
+    const unsupportedAuth = Object.entries(securityDefinitions)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         .find(([_, def]) => def.type !== 'apiKey' && def.type !== 'oauth2');
 
@@ -183,6 +210,9 @@ function determineAuthSettings(swagger: SwaggerSchema): {
  */
 function createEndpointsArray(swagger: SwaggerSchema, baseUrl: string): Tables<'endpoints'>[] {
     const endpoints: Tables<'endpoints'>[] = [];
+
+    // Get component schemas (for OpenAPI 3.0)
+    const componentSchemas = swagger.openapi ? swagger.components?.schemas : null;
 
     // Process each path and method combination
     for (const [path, pathItem] of Object.entries(swagger.paths)) {
@@ -204,6 +234,22 @@ function createEndpointsArray(swagger: SwaggerSchema, baseUrl: string): Tables<'
             // Get description from the operation
             const description = operation.description || operation.summary || '';
 
+            // Create schema object with components references for OpenAPI 3.0
+            const schema: any = {
+                parameters: operation.parameters || [],
+                responses: operation.responses,
+            };
+
+            // Add requestBody for OpenAPI 3.0
+            if (operation.requestBody) {
+                schema.requestBody = operation.requestBody;
+            }
+
+            // Add component schemas if available (OpenAPI 3.0)
+            if (componentSchemas) {
+                schema.components = { schemas: componentSchemas };
+            }
+
             // Create endpoint object
             const endpoint: Partial<Tables<'endpoints'>> = {
                 name,
@@ -212,10 +258,7 @@ function createEndpointsArray(swagger: SwaggerSchema, baseUrl: string): Tables<'
                 regex_path,
                 description,
                 source: 'openapi',
-                schema: {
-                    parameters: operation.parameters || [],
-                    responses: operation.responses,
-                },
+                schema,
             };
 
             endpoints.push(endpoint as Tables<'endpoints'>);
