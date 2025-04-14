@@ -4,6 +4,7 @@ import {z} from "zod";
 
 const debug = true;
 const baseApiUrl = "https://eu.api200.co/api";
+const userKey = "022fad02fed409a185c42c4416cea7c0";
 
 
 function log(...args: any) {
@@ -53,7 +54,6 @@ const main = async () => {
     });
 
     try {
-        const userKey = "022fad02fed409a185c42c4416cea7c0";
 
         const response = await fetch('http://localhost:8080/user/mcp-services', {
             headers: {

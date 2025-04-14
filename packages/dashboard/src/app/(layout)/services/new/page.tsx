@@ -35,7 +35,7 @@ export default function NewApiServicePage() {
                     <AlertDescription>
                         You can import service and endpoints from OpenAPI/Swagger or Postman collection.
                     </AlertDescription>
-                    <Link href={`/services/new`} passHref>
+                    <Link href={`/services/import`} passHref>
                         <Button className={"mt-2"} variant={"outline"} size={"sm"}>
                             Import Endpoints
                         </Button>
