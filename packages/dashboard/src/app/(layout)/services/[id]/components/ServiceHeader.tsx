@@ -6,7 +6,7 @@ import { FC } from "react";
 import Link from 'next/link';
 import { ColorSquare } from "@/components/ColorSquare";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import InfoTooltip from '@/components/ui/info-tooltip';
+import InfoTooltip from '@/app/(layout)/services/[id]/endpoints/[endpointId]/components/info-tooltip';
 
 type Props = {
     service: Tables<'services'>

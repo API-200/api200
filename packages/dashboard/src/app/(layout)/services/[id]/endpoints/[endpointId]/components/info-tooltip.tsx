@@ -7,7 +7,7 @@ export default function InfoTooltip({ text }: { text: string }) {
         <TooltipProvider delayDuration={0}>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <Info className="text-gray-500" />
+                    <Info className="text-gray-500 h-4 w-4" />
                 </TooltipTrigger>
                 <TooltipContent>
                     <span>{text}</span>

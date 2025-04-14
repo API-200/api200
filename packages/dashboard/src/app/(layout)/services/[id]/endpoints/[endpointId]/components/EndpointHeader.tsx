@@ -4,10 +4,10 @@ import { ArrowRight } from "lucide-react"
 import { Tables } from "@/utils/supabase/database.types";
 import { MethodBadge } from "@/components/MethodBadge";
 import { ColorSquare } from "@/components/ColorSquare";
-import { UrlCopy } from "@/app/(layout)/services/[id]/endpoints/[endpointId]/components/UrlCopy";
+import { UrlCopy } from "./UrlCopy";
 import Link from "next/link";
 import { env } from "next-runtime-env";
-import InfoTooltip from '@/components/ui/info-tooltip';
+import InfoTooltip from './info-tooltip';
 
 interface EndpointHeaderProps {
     endpoint: Tables<'endpoints'>
