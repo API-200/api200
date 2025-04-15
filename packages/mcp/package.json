@@ -1,6 +1,6 @@
 {
   "name": "api200-mcp",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "API200 MCP server for Claude and other model context protocol clients",
   "type": "module",
   "main": "./dist/index.js",
@@ -21,12 +21,10 @@
   "keywords": [
     "mcp",
     "model-context-protocol",
-    "claude",
     "api",
     "api200"
   ],
-  "author": "",
-  "license": "MIT",
+  "author": "Maksym Budnyk",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.9.0",
     "zod": "^3.24.2"

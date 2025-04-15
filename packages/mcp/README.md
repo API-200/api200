@@ -1,6 +1,6 @@
 # API200 MCP Server
 
-A Model Context Protocol (MCP) server for API200, allowing seamless integration with Claude Desktop and other MCP clients.
+A Model Context Protocol (MCP) server for [API 200](https://api200.co), allowing integration with MCP clients.
 
 ## Installation
 
@@ -32,21 +32,24 @@ To configure the API200 MCP server with Claude Desktop:
 
 ```json
 {
-  "api200": {
-    "command": "npx",
-    "args": [
-      "api200-mcp"
-    ],
-    "env": {
-      "USER_KEY": "your-api-key-here"
+  "mcpServers": {
+    "api200": {
+      "command": "npx",
+      "args": [
+        "api200-mcp@latest"
+      ],
+      "env": {
+        "USER_KEY": "your-api-key-here"
+      }
     }
   }
 }
+
 ```
 
 ## Usage
 
-Once configured, you can access all your API200 endpoints directly within Claude Desktop or other MCP-compatible clients.
+Once configured, you can access all your API 200 endpoints directly within Claude Desktop or other MCP-compatible clients.
 
 ### Running Standalone
 
