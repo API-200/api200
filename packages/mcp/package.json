@@ -1,14 +1,42 @@
 {
+  "name": "api200-mcp",
+  "version": "1.0.0",
+  "description": "API200 MCP server for Claude and other model context protocol clients",
   "type": "module",
+  "main": "./dist/index.js",
   "bin": {
-    "weather": "./build/index.js"
+    "api200-mcp": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc && chmod 755 build/index.js",
-    "run": "npm run build && node build/index.js",
-    "inspector": "npm run build && npx @modelcontextprotocol/inspector node build/index.js"
+    "build": "tsup src/index.ts --format esm --dts",
+    "dev": "tsup src/index.ts --format esm --watch",
+    "start": "node dist/index.js",
+    "prepare": "npm run build",
+    "inspector": "npx @modelcontextprotocol/inspector node dist/index.js"
   },
   "files": [
-    "build"
-  ]
+    "dist",
+    "README.md"
+  ],
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "claude",
+    "api",
+    "api200"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.9.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
 }

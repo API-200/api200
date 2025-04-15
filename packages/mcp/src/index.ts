@@ -1,39 +1,51 @@
+#!/usr/bin/env node
 import {McpServer} from "@modelcontextprotocol/sdk/server/mcp.js";
 import {StdioServerTransport} from "@modelcontextprotocol/sdk/server/stdio.js";
 import {z} from "zod";
 
-const debug = true;
-const baseApiUrl = "https://eu.api200.co/api";
-const userKey = "022fad02fed409a185c42c4416cea7c0";
+const envSchema = z.object({
+    USER_KEY: z.string().min(1),
+    BASE_API_URL: z.string().url().default("https://eu.api200.co/api"),
+    DEBUG: z.enum(["true", "false"]).optional().transform(val => val === "true")
+});
 
+const env = envSchema.safeParse({
+    USER_KEY: process.env.USER_KEY,
+    BASE_API_URL: process.env.BASE_API_URL,
+    DEBUG: process.env.DEBUG
+});
 
-function log(...args: any) {
+if (!env.success) {
+    console.error("Environment configuration error:", env.error.format());
+    process.exit(1);
+}
+
+const userKey = env.data.USER_KEY;
+const baseApiUrl = env.data.BASE_API_URL;
+const debug = env.data.DEBUG ?? false;
+const baseUrl = baseApiUrl.replace(/\/api$/, "/");
+
+function log(...args: any[]) {
     if (debug) {
         const msg = `[DEBUG ${new Date().toISOString()}] ${args.join(" ")}\n`;
         process.stderr.write(msg);
     }
 }
 
-// Helper function to construct the full URL with properly replaced parameters
 const getFullUrlWithParams = (service: any, endpoint: any, params: any): string => {
-
     const serviceName = service.name;
-
     let endpointPath = endpoint.name;
 
     if (endpoint.schema && endpoint.schema.parameters) {
         endpoint.schema.parameters.forEach((param: any) => {
             if (param.in === 'path' && params[param.name]) {
-                // Replace {paramName} with actual value
                 endpointPath = endpointPath.replace(`{${param.name}}`, params[param.name]);
             }
         });
     }
 
-    // Construct full URL
     const fullUrl = `${baseApiUrl}/${serviceName}${endpointPath}`;
 
-    // Add query parameters if any
     const queryParams: string[] = [];
     if (endpoint.schema && endpoint.schema.parameters) {
         endpoint.schema.parameters.forEach((param: any) => {
@@ -43,35 +55,108 @@ const getFullUrlWithParams = (service: any, endpoint: any, params: any): string 
         });
     }
 
-    // Append query string if query parameters exist
     return queryParams.length > 0 ? `${fullUrl}?${queryParams.join('&')}` : fullUrl;
 };
 
+const extractRequestBodySchema = (endpoint: any): any => {
+    if (!endpoint.schema || !endpoint.schema.requestBody || !endpoint.schema.requestBody.content) {
+        return null;
+    }
+
+    const jsonContent = endpoint.schema.requestBody.content['application/json'];
+    if (jsonContent && jsonContent.schema) {
+        return jsonContent.schema;
+    }
+
+    const contentTypes = Object.keys(endpoint.schema.requestBody.content);
+    if (contentTypes.length > 0) {
+        const firstContentType = contentTypes[0];
+        return endpoint.schema.requestBody.content[firstContentType].schema;
+    }
+
+    return null;
+};
+
+const convertOpenApiSchemaToZod = (schema: any): any => {
+    if (!schema) return null;
+
+    if (schema.type === 'array' && schema.items) {
+        if (schema.items.$ref) {
+            return z.array(z.object({}).passthrough());
+        } else {
+            return z.array(convertOpenApiSchemaToZod(schema.items));
+        }
+    }
+
+    if (schema.type === 'object' || (!schema.type && schema.properties)) {
+        const shape: Record<string, any> = {};
+
+        if (schema.properties) {
+            Object.entries(schema.properties).forEach(([propName, propSchema]: [string, any]) => {
+                let zodType;
+
+                switch (propSchema.type) {
+                    case 'string':
+                        zodType = z.string();
+                        break;
+                    case 'integer':
+                    case 'number':
+                        zodType = z.number();
+                        break;
+                    case 'boolean':
+                        zodType = z.boolean();
+                        break;
+                    case 'array':
+                        zodType = z.array(z.any());
+                        break;
+                    case 'object':
+                        zodType = z.object({}).passthrough();
+                        break;
+                    default:
+                        zodType = z.any();
+                }
+
+                if (schema.required && schema.required.includes(propName)) {
+                    shape[propName] = zodType;
+                } else {
+                    shape[propName] = zodType.optional();
+                }
+            });
+        }
+
+        return z.object(shape).passthrough();
+    }
+
+    return z.any();
+};
+
 const main = async () => {
+
     const server = new McpServer({
         name: "API200 Client",
         version: "1.0.0"
     });
 
     try {
-
-        const response = await fetch('http://localhost:8080/user/mcp-services', {
+        const response = await fetch(`${baseUrl}/user/mcp-services`, {
             headers: {
                 "x-api-key": userKey
             }
         });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch MCP services: ${response.status} ${response.statusText}`);
+        }
+
         const data = await response.json();
+        log(`Loaded ${data.length} services`);
 
         data.forEach((service: any) => {
-
             service.endpoints.forEach((endpoint: any) => {
-
-                // Create Zod schema dynamically based on endpoint parameters
                 const paramSchema: Record<string, any> = {};
 
                 if (endpoint.schema && endpoint.schema.parameters) {
                     endpoint.schema.parameters.forEach((param: any) => {
-                        // Determine the Zod type based on the parameter type
                         let zodType;
                         switch (param.type) {
                             case 'integer':
@@ -90,12 +175,10 @@ const main = async () => {
                                 zodType = z.string();
                         }
 
-                        // Make it optional if not required
                         if (!param.required) {
                             zodType = zodType.optional();
                         }
 
-                        // Add description if available
                         if (param.description) {
                             zodType = zodType.describe(param.description);
                         }
@@ -104,37 +187,48 @@ const main = async () => {
                     });
                 }
 
-                // Create a formatted toolName from the endpoint name
-                // Remove leading slash and replace remaining slashes with underscores
+                if (['POST', 'PUT', 'PATCH'].includes(endpoint.method.toUpperCase())) {
+                    const bodySchema = extractRequestBodySchema(endpoint);
+                    if (bodySchema) {
+                        const zodBodySchema = convertOpenApiSchemaToZod(bodySchema);
+                        paramSchema['requestBody'] = zodBodySchema || z.any().optional().describe('Request body payload');
+                    } else {
+                        paramSchema['requestBody'] = z.any().optional().describe('Request body payload');
+                    }
+                }
+
                 let toolName = endpoint.name.replace(/^\//, '').replace(/\//g, '_');
-                // Replace curly braces notation with "by" prefix
                 toolName = toolName.replace(/{([^}]+)}/g, 'by_$1');
 
-                // Register the tool with the server
                 server.tool(
-                    toolName,  // Tool name
-                    endpoint.description || `${endpoint.method} ${endpoint.name}`,  // Description
-                    paramSchema,  // Zod schema
+                    toolName,
+                    endpoint.description || `${endpoint.method} ${endpoint.name}`,
+                    paramSchema,
                     async (params) => {
                         try {
-                            // Get the properly constructed URL, passing service object to the helper function
                             const url = getFullUrlWithParams(service, endpoint, params);
 
-                            log(`Making ${endpoint.method} request to: ${url}`);
-
-                            // Make the actual API call
-                            const apiResponse = await fetch(url, {
+                            const requestOptions: RequestInit = {
                                 method: endpoint.method,
                                 headers: {
                                     "Accept": "application/json",
                                     "Content-Type": "application/json",
                                     "x-api-key": userKey
                                 }
-                            });
+                            };
 
+                            if (['POST', 'PUT', 'PATCH'].includes(endpoint.method.toUpperCase()) && params.requestBody) {
+                                requestOptions.body = JSON.stringify(params.requestBody);
+                            }
+
+                            log(`Making ${endpoint.method} request to: ${url}`);
+                            if (requestOptions.body) {
+                                log(`With body: ${requestOptions.body}`);
+                            }
+
+                            const apiResponse = await fetch(url, requestOptions);
                             const data = await apiResponse.json();
 
-                            // Return formatted response
                             return {
                                 content: [
                                     {
@@ -149,7 +243,8 @@ const main = async () => {
                                 content: [
                                     {
                                         type: "text",
-                                        text: `Error: ${error instanceof Error ? error.message : String(error)}`
+                                        text: `Error: ${error instanceof Error ? error.message : String(error)}`,
+                                        isError: true
                                     }
                                 ]
                             };
@@ -160,13 +255,17 @@ const main = async () => {
                 log(`Registered tool: ${toolName}`);
             });
         });
+
     } catch (error) {
         log("Error setting up MCP tools:", error);
+        process.exit(1);
     }
 
-    // Start receiving messages on stdin and sending messages on stdout
     const transport = new StdioServerTransport();
     await server.connect(transport);
 };
 
-main();
+main().catch(err => {
+    log("Fatal error:", err);
+    process.exit(1);
+});
