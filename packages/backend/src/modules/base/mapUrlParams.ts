@@ -1,168 +1,38 @@
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import { z } from "zod";
+import { Tables } from '../../utils/database.types';
 
-// Helper function to construct the full URL with properly replaced parameters
-const getFullUrlWithParams = (service: any, endpoint: any, params: any): string => {
-    // Base API URL structure
-    const baseApiUrl = "https://eu.api200.co/api";
+export const getFullUrlWithParams = (
+    endpoint: Tables<'endpoints'>,
+    endpointName: string,
+): string => {
+    // Ensure endpointName starts with a forward slash
+    const normalizedEndpointName = endpointName.startsWith('/') ? endpointName : `/${endpointName}`;
 
-    // Get service name
-    const serviceName = service.name;
-
-    // Start with endpoint name
-    let endpointPath = endpoint.name;
-
-    // Replace path parameters in the URL
-    if (endpoint.schema && endpoint.schema.parameters) {
-        endpoint.schema.parameters.forEach((param: any) => {
-            if (param.in === 'path' && params[param.name]) {
-                // Replace {paramName} with actual value
-                endpointPath = endpointPath.replace(`{${param.name}}`, params[param.name]);
-            }
-        });
+    if (endpoint.regex_path === `^${endpoint.name}$`) {
+        return endpoint.full_url;
     }
 
-    // Construct full URL
-    const fullUrl = `${baseApiUrl}/${serviceName}${endpointPath}`;
+    const regex = new RegExp(endpoint.regex_path!);
+    const matches = normalizedEndpointName.match(regex);
 
-    // Add query parameters if any
-    const queryParams: string[] = [];
-    if (endpoint.schema && endpoint.schema.parameters) {
-        endpoint.schema.parameters.forEach((param: any) => {
-            if (param.in === 'query' && params[param.name] !== undefined) {
-                queryParams.push(`${param.name}=${encodeURIComponent(params[param.name])}`);
-            }
-        });
+    if (!matches) {
+        //TODO return instead of throwing so it wont be catched in global error handler
+        throw new Error(`API200 Error: Path parameters don't match provided`);
     }
 
-    // Append query string if query parameters exist
-    return queryParams.length > 0 ? `${fullUrl}?${queryParams.join('&')}` : fullUrl;
-};
+    // Get the parameter names from the full_url
+    const paramNames = endpoint.full_url.match(/\{([^}]+)\}/g) || [];
 
-const main = async () => {
-    const server = new McpServer({
-        name: "API200 Client",
-        version: "1.0.0"
+    // Start with the full URL
+    let finalUrl = endpoint.full_url;
+
+    // Replace each parameter with its corresponding value
+    paramNames.forEach((param, index) => {
+        // matches[0] is the full match, so we start from index 1 for capture groups
+        const value = matches[index + 1];
+        if (value) {
+            finalUrl = finalUrl.replace(param, value);
+        }
     });
 
-    try {
-        const userKey = "022fad02fed409a185c42c4416cea7c0";
-
-        const response = await fetch('http://localhost:8080/user/mcp-services', {
-            headers: {
-                "x-api-key": userKey
-            }
-        });
-        const data = await response.json();
-
-        data.forEach((service: any) => {
-            console.log(`Processing service: ${service.name}`);
-
-            service.endpoints.forEach((endpoint: any) => {
-                console.log(`Processing endpoint: ${endpoint.name} (${endpoint.method})`);
-
-                // Create Zod schema dynamically based on endpoint parameters
-                const paramSchema: Record<string, any> = {};
-
-                if (endpoint.schema && endpoint.schema.parameters) {
-                    endpoint.schema.parameters.forEach((param: any) => {
-                        // Determine the Zod type based on the parameter type
-                        let zodType;
-                        switch (param.type) {
-                            case 'integer':
-                                zodType = z.number().int();
-                                break;
-                            case 'number':
-                                zodType = z.number();
-                                break;
-                            case 'string':
-                                zodType = z.string();
-                                break;
-                            case 'boolean':
-                                zodType = z.boolean();
-                                break;
-                            default:
-                                zodType = z.string();
-                        }
-
-                        // Make it optional if not required
-                        if (!param.required) {
-                            zodType = zodType.optional();
-                        }
-
-                        // Add description if available
-                        if (param.description) {
-                            zodType = zodType.describe(param.description);
-                        }
-
-                        paramSchema[param.name] = zodType;
-                    });
-                }
-
-                // Create a formatted toolName from the endpoint name
-                // Remove leading slash and replace remaining slashes with underscores
-                let toolName = endpoint.name.replace(/^\//, '').replace(/\//g, '_');
-                // Replace curly braces notation with "by" prefix
-                toolName = toolName.replace(/{([^}]+)}/g, 'by_$1');
-
-                // Register the tool with the server
-                server.tool(
-                    toolName,  // Tool name
-                    endpoint.description || `${endpoint.method} ${endpoint.name}`,  // Description
-                    paramSchema,  // Zod schema
-                    async (params) => {
-                        try {
-                            // Get the properly constructed URL, passing service object to the helper function
-                            const url = getFullUrlWithParams(service, endpoint, params);
-
-                            console.log(`Making ${endpoint.method} request to: ${url}`);
-
-                            // Make the actual API call
-                            const apiResponse = await fetch(url, {
-                                method: endpoint.method,
-                                headers: {
-                                    "Accept": "application/json",
-                                    "Content-Type": "application/json",
-                                    "x-api-key": userKey
-                                }
-                            });
-
-                            const data = await apiResponse.json();
-
-                            // Return formatted response
-                            return {
-                                content: [
-                                    {
-                                        type: "text",
-                                        text: JSON.stringify(data, null, 2)
-                                    }
-                                ]
-                            };
-                        } catch (error) {
-                            console.error(`Error calling ${endpoint.name}:`, error);
-                            return {
-                                content: [
-                                    {
-                                        type: "text",
-                                        text: `Error: ${error instanceof Error ? error.message : String(error)}`
-                                    }
-                                ]
-                            };
-                        }
-                    }
-                );
-
-                console.log(`Registered tool: ${toolName}`);
-            });
-        });
-    } catch (error) {
-        console.error("Error setting up MCP tools:", error);
-    }
-
-    // Start receiving messages on stdin and sending messages on stdout
-    const transport = new StdioServerTransport();
-    await server.connect(transport);
+    return finalUrl;
 };
-
-main();
