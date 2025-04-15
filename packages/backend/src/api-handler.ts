@@ -21,6 +21,7 @@ import { getFullUrlWithParams } from './modules/base/mapUrlParams';
 import { applyThirdPartyAuth } from './modules/applyThirdPartyAuth';
 import { prepareAxiosConfig } from './modules/base/prepareAxiosConfig';
 import FEATURES from '@config/features';
+import { supabase } from '@utils/supabase';
 
 export const createApiHandlerRouter = () => {
     const router = new Router();
@@ -167,5 +168,6 @@ export const createApiHandlerRouter = () => {
             );
         }
     });
+
     return router;
 };

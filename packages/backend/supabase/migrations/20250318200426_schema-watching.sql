@@ -14,6 +14,20 @@ grant delete, insert, references, select, trigger, truncate, update on public.en
 
 grant delete, insert, references, select, trigger, truncate, update on public.endpoints_response_schema_history to service_role;
 
+alter table public.endpoints_response_schema_history
+    enable row level security;
+
+create policy "Endpoints Response Schema History: Select" on public.endpoints_response_schema_history
+    for select
+    to authenticated
+    using (
+        exists (
+            SELECT 1 FROM public.endpoints e
+            JOIN public.services s ON e.service_id = s.id
+            WHERE e.id = endpoint_id AND s.user_id = auth.uid()
+        )
+    );
+
 
 CREATE OR REPLACE FUNCTION get_route_data(
     p_service_name text,

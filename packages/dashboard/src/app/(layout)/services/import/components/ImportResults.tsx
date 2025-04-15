@@ -1,30 +1,32 @@
 "use client"
 
-import {Button} from "@/components/ui/button"
-import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
-import {Label} from "@/components/ui/label"
-import {Badge} from "@/components/ui/badge"
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
-import {ParsedSwaggerResult} from "@/app/(layout)/services/import/parseSwagger";
-import {MethodBadge} from "@/components/MethodBadge";
-import {createClient} from "@/utils/supabase/client";
-import {useRouter} from "next/navigation";
-import {useState} from "react";
-import {toast} from "sonner";
-import {Tables} from "@/utils/supabase/database.types";
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { ParsedSwaggerResult } from "@/app/(layout)/services/import/parseSwagger";
+import { MethodBadge } from "@/components/MethodBadge";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Tables } from "@/utils/supabase/database.types";
+import { Switch } from '@/components/ui/switch'
 
 type Props = {
     data: ParsedSwaggerResult
     onCancel: () => void
 }
 
-export default function ImportResults({data, onCancel}: Props) {
+export default function ImportResults({ data, onCancel }: Props) {
     const supabase = createClient()
     const router = useRouter()
+    const [isMcpEnabled, setIsMcpEnabled] = useState(false)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handleSave = async () => {
-       await onSubmit()
+        await onSubmit()
     }
 
     //TODO move to backend and add transaction
@@ -32,13 +34,13 @@ export default function ImportResults({data, onCancel}: Props) {
         try {
             setIsSubmitting(true)
 
-            const {data: serviceData, error: serviceError} = await supabase
+            const { data: serviceData, error: serviceError } = await supabase
                 .from('services')
-                .insert(data.service)
+                .insert({ ...data.service, is_mcp_enabled: isMcpEnabled })
                 .select()
                 .single()
 
-            if(serviceError){
+            if (serviceError) {
                 throw serviceError
             }
 
@@ -47,11 +49,11 @@ export default function ImportResults({data, onCancel}: Props) {
                 service_id: serviceData.id
             }))
 
-            const {error: endpointsError} = await supabase
+            const { error: endpointsError } = await supabase
                 .from('endpoints')
                 .insert(endpointsToInsert)
 
-            if(endpointsError){
+            if (endpointsError) {
                 throw endpointsError
             }
 
@@ -60,7 +62,7 @@ export default function ImportResults({data, onCancel}: Props) {
                 router.push(`/services/${serviceData.id}`)
             }
         } catch (e) {
-            toast.error(`Failed to import data.`, {description: (e as Error)?.message})
+            toast.error(`Failed to import data.`, { description: (e as Error)?.message })
         } finally {
             setIsSubmitting(false)
         }
@@ -120,7 +122,7 @@ export default function ImportResults({data, onCancel}: Props) {
 
             {/* Endpoints Table */}
             <div className="mb-6">
-                <h2 className="text-md font-medium mb-2">Endpoints ({data.endpoints.length})</h2>
+                <h2 className="text-md font-medium">Endpoints ({data.endpoints.length})</h2>
                 <div className="border rounded-md">
                     <Table>
                         <TableHeader>
@@ -136,7 +138,7 @@ export default function ImportResults({data, onCancel}: Props) {
                                 <TableRow key={idx}>
                                     <TableCell className="font-medium">{endpoint.name}</TableCell>
                                     <TableCell>
-                                        <MethodBadge method={endpoint.method}/>
+                                        <MethodBadge method={endpoint.method} />
                                     </TableCell>
                                     <TableCell className="truncate max-w-xs">{endpoint.description}</TableCell>
                                     <TableCell
@@ -145,6 +147,18 @@ export default function ImportResults({data, onCancel}: Props) {
                             ))}
                         </TableBody>
                     </Table>
+                </div>
+            </div>
+            <div className="flex flex-row items-center justify-between rounded-lg border p-4 mt-2 mb-4">
+                <div className="space-y-0.5">
+                    <div className="">Enable MCP (Experimental)</div>
+                    <div className="text-[0.8rem] text-muted-foreground">
+                        This will allow to use endpoints in different LLMs&nbsp;
+                        (<a href="https://modelcontextprotocol.io/introduction" target="_blank" className="text-blue-500 hover:underline">read more</a>)
+                    </div>
+                </div>
+                <div>
+                    <Switch checked={isMcpEnabled} onCheckedChange={c => setIsMcpEnabled(c)} />
                 </div>
             </div>
 

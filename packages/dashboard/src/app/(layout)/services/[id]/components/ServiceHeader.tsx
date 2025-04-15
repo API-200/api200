@@ -1,29 +1,31 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {AlertCircle, PlusCircle} from "lucide-react";
+import { AlertCircle, PlusCircle } from "lucide-react";
 import { Tables } from "@/utils/supabase/database.types";
 import { FC } from "react";
 import Link from 'next/link';
 import { ColorSquare } from "@/components/ColorSquare";
-import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import InfoTooltip from '@/app/(layout)/services/[id]/endpoints/[endpointId]/components/info-tooltip';
 
 type Props = {
     service: Tables<'services'>
     isValidAuth: boolean
 }
 
-export const ServiceHeader: FC<Props> = ({ service,isValidAuth }) => {
+export const ServiceHeader: FC<Props> = ({ service, isValidAuth }) => {
     return (
         <div className={"mb-6"}>
             <div className="flex justify-between items-center">
                 <div className="mb-6">
-                    <div className="flex gap-2 items-center flex-row mb-4">
+                    <div className="flex gap-2 items-center flex-row mb-2">
                         <ColorSquare big name={service.name} />
                         <h1 className="text-3xl font-bold tracking-tight">{service.name}</h1>
+                        {service.description && <InfoTooltip text={service.description} />}
                     </div>
-                    <p className="text-gray-600 mb-1">{service.description}</p>
                     <p className="text-sm text-gray-500 mb-2">Base URL: {service.base_url}</p>
                     <div className="flex items-center space-x-2">
+                        {service.is_mcp_enabled && <Badge variant="outline">MCP Enabled</Badge>}
                         <Badge variant={service.auth_enabled ? "default" : "secondary"}>
                             Auth {service.auth_enabled ? "Enabled" : "Disabled"}
                         </Badge>

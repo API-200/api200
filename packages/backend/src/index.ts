@@ -7,6 +7,7 @@ import bodyParser from 'koa-bodyparser';
 import { createTestRouter } from './test/test-api-handler';
 import Sentry from '@sentry/node';
 import cors from '@koa/cors';
+import { createUserRouter } from './user-router';
 
 const app = new Koa({ proxy: true });
 app.use(cors());
@@ -18,16 +19,19 @@ const router = new Router();
 const isDevelopment = process.env.NODE_ENV === 'development';
 
 const apiHandler = createApiHandlerRouter();
+const userRouter = createUserRouter();
 const testRouter = createTestRouter();
+
 app.use(apiHandler.routes()).use(apiHandler.allowedMethods());
+app.use(userRouter.routes()).use(userRouter.allowedMethods());
 
 if (isDevelopment) {
-    app.use(testRouter.routes()).use(testRouter.allowedMethods());
+  app.use(testRouter.routes()).use(testRouter.allowedMethods());
 }
 
 // Routes
 router.get('/', (ctx) => {
-    ctx.body = `
+  ctx.body = `
     <html>
       <body>
         <h1>Welcome to api200!</h1>
@@ -38,10 +42,10 @@ router.get('/', (ctx) => {
 });
 
 router.get('/healthcheck', (ctx) => {
-    ctx.body = {
-        status: 'OK',
-        timestamp: new Date().toISOString(),
-    };
+  ctx.body = {
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+  };
 });
 
 // Apply routes
@@ -49,13 +53,13 @@ app.use(router.routes()).use(router.allowedMethods());
 
 // Start the server
 const server = app.listen(config.PORT, '0.0.0.0', () => {
-    console.log(`✅ Server running at http://localhost:${config.PORT}`);
+  console.log(`✅ Server running at http://localhost:${config.PORT}`);
 });
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-    console.log('🛑 SIGTERM received. Shutting down gracefully');
-    server.close(() => {
-        console.log('💤 Process terminated');
-    });
-});
+// // Graceful shutdown
+// process.on('SIGTERM', () => {
+//     console.log('🛑 SIGTERM received. Shutting down gracefully');
+//     server.close(() => {
+//         console.log('💤 Process terminated');
+//     });
+// });
