@@ -197,7 +197,9 @@ const main = async () => {
                     }
                 }
 
-                let toolName = endpoint.name.replace(/^\//, '').replace(/\//g, '_');
+                // Updated code to include the HTTP method in the tool name
+                const method = endpoint.method.toLowerCase();
+                let toolName = `${method}_${endpoint.name.replace(/^\//, '').replace(/\//g, '_')}`;
                 toolName = toolName.replace(/{([^}]+)}/g, 'by_$1');
 
                 server.tool(
