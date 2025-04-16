@@ -50,7 +50,6 @@ auto-generated code, docs, auth, caching and error handling – so you can focus
 
 ### Features in Progress:
 
-- API to LLM MCP
 - More authentication methods
 
 [//]: # (## Interactive Demo)
