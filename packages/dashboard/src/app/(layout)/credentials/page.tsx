@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ApiKeyDisplay } from "./components/ApiKeyDisplay";
 import { env } from "next-runtime-env";
+import MCPConfig from "@/app/(layout)/credentials/components/MCPConfig";
 
 export default async function PrivatePage() {
     const supabase = await createClient()
@@ -61,6 +62,7 @@ export default async function PrivatePage() {
                         </pre>
                     </CardContent>
                 </Card>
+                <MCPConfig apiKey={apiKey?.key}/>
             </div>
         </div>
         <div>

@@ -4,11 +4,13 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Copy, CopyCheck, RefreshCw } from "lucide-react"
 import { toast } from "sonner"
+import {useRouter} from "next/navigation";
 
 export const ApiKeyDisplay = () => {
     const [key, setKey] = useState<string | null>(null)
     const [isCopied, setIsCopied] = useState(false)
     const [isReissuing, setIsReissuing] = useState(false)
+    const router = useRouter()
 
     useEffect(() => {
         fetchApiKey()
@@ -48,6 +50,7 @@ export const ApiKeyDisplay = () => {
             const data = await response.json()
             setKey(data.apiKey)
             toast.success("API key reissued successfully")
+            router.refresh()
         } catch (err) {
             console.error("Failed to reissue API key:", err)
             toast.error("Failed to reissue API key")

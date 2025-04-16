@@ -1,6 +1,6 @@
 {
   "name": "api200-mcp",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "API200 MCP server for Claude and other model context protocol clients",
   "type": "module",
   "main": "./dist/index.js",
