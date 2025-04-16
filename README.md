@@ -15,7 +15,7 @@
 
 ## About API 200
 
-API 200 is all-in-one gateway for managing third-party APIs efficiently. Integrate third-party APIs in minutes with
+API 200 is all-in-one gateway for managing third-party APIs efficiently. Integrate third-party APIs or setup MCP server in minutes with
 auto-generated code, docs, auth, caching and error handling – so you can focus on what really matters.
 
 <div align="center">
@@ -45,6 +45,8 @@ auto-generated code, docs, auth, caching and error handling – so you can focus
 ✅ **Endpoint Monitoring:** Convenient charts with your endpoint's statistics
 
 ✅ **Comprehensive Logging**
+
+✅ **MCP Support** ([read more](https://github.com/API-200/api200/blob/main/packages/mcp/README.md))
 
 ### Features in Progress:
 
