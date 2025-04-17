@@ -63,6 +63,30 @@ auto-generated code, docs, auth, caching and error handling – so you can focus
 Get started immediately with our managed version of API 200. Users can go to our cloud platform and start integrating
 API endpoints instantly without any setup or infrastructure management. Visit [API200.co](https://api200.co) to begin.
 
+## MCP
+
+To configure the API200 MCP server with Claude Desktop (or any other client):
+
+1. Open Claude Desktop settings
+2. Navigate to Developer settings
+3. Add a new custom tool with the following configuration:
+
+```json
+{
+  "mcpServers": {
+    "api200": {
+      "command": "npx",
+      "args": [
+        "api200-mcp@latest"
+      ],
+      "env": {
+        "USER_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
+```
+
 ## Self-Hosted Setup
 
 ### Prerequisites

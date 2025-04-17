@@ -44,7 +44,6 @@ To configure the API200 MCP server with Claude Desktop:
     }
   }
 }
-
 ```
 
 ## Usage
