@@ -9,7 +9,6 @@ const FEATURES = {
         SHOW_REGION: !isSelfHosted,
     },
     ANALYTICS: {
-        ENABLE_CANNY: !isSelfHosted,
         ENABLE_SENTRY: !isSelfHosted,
     },
     EMAILS: !isSelfHosted,
