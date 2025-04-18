@@ -69,7 +69,7 @@ To configure the API200 MCP server with Claude Desktop (or any other client):
 
 1. Open Claude Desktop settings
 2. Navigate to Developer settings
-3. Add a new custom tool with the following configuration:
+3. Add a new custom tool with the following configuration (can be found on the Credentials tab):
 
 ```json
 {
