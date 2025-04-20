@@ -62,7 +62,7 @@ export default function OnboardingModal() {
                 .insert({
                     ...parsedResult.service,
                     is_mcp_enabled: true,
-                    name: "Demo Project",
+                    name: "demo-project",
                     description: "Demo project for JSON Placeholder API with enabled MCP Server",
                 })
                 .select()

@@ -14,6 +14,7 @@ import {EndpointsTab} from "./components/EndpointsTab";
 import {APIServiceForm} from "@/components/forms/APIServiceForm";
 import DeleteServiceForm from "@/components/forms/DeleteServiceForm";
 import ServiceMonitoring from "@/app/(layout)/services/[id]/components/monitoring/ServiceMonitoring";
+import ServiceOnboardingModal from "@/app/(layout)/services/[id]/components/ServiceOnboardingModal";
 
 type Args = {
     params: Promise<{ id: string }>
@@ -44,6 +45,7 @@ export default async function PrivatePage({params}: Args) {
 
     return (
         <div className="container mx-auto">
+            <ServiceOnboardingModal/>
             <Breadcrumb className="mb-6">
                 <BreadcrumbList>
                     <BreadcrumbItem>
