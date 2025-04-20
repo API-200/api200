@@ -2,6 +2,7 @@ import { AppSidebar } from "@/app/(layout)/components/AppSidebar"
 import { SidebarProvider } from '@/components/ui/sidebar'
 import { redirect } from 'next/navigation'
 import {createClient} from "@/utils/supabase/server";
+import OnboardingModal from "@/app/(layout)/components/OnboardingModal";
 
 export default async function RootLayout({
                                              children,
@@ -19,6 +20,7 @@ export default async function RootLayout({
         <SidebarProvider>
             <div className="flex h-screen w-full">
                 <AppSidebar />
+                <OnboardingModal/>
                 <div className="flex-1 overflow-y-auto p-8">
                     {children}
                 </div>
