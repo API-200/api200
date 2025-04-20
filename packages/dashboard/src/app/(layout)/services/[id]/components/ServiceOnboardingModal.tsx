@@ -97,7 +97,7 @@ export default function ServiceOnboardingModal() {
                         onClick={completeModal}
                         className="text-muted-foreground"
                     >
-                        Skip for now - I’ll set it up later
+                        Skip for now - I&apos;ll set it up later
                     </Button>
                 </div>
             </DialogContent>

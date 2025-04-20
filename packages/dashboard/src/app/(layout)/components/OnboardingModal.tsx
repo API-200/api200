@@ -213,7 +213,7 @@ export default function OnboardingModal() {
                         className="text-muted-foreground"
                         disabled={isLoading}
                     >
-                        I'll explore on my own
+                        I&apos;ll explore on my own
                     </Button>
                 </div>
             </DialogContent>
