@@ -5,12 +5,17 @@ import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle} from "@/components/ui/dialog"
 import {ArrowRight, Download, PlayCircle, Settings} from "lucide-react"
-import {useRouter} from "next/navigation";
+import {useRouter} from "next/navigation"
+import {toast} from "sonner"
+import {createClient} from "@/utils/supabase/client"
+import {parseSwagger} from "@/app/(layout)/services/import/parseSwagger"
+import {demoSwagger} from "@/utils/data/demoSwagger"
 
 export default function OnboardingModal() {
     const router = useRouter()
-
+    const supabase = createClient()
     const [isOpen, setIsOpen] = useState(false)
+    const [isLoading, setIsLoading] = useState(false)
 
     // Show the modal when the component mounts (for new users)
     useEffect(() => {
@@ -22,22 +27,59 @@ export default function OnboardingModal() {
         // localStorage.setItem('isNewUser', 'false')
     }, [])
 
-    const onDemoProject = () =>{
+    const onDemoProject = async () => {
+        try {
+            setIsLoading(true)
+            const demoSwaggerString = JSON.stringify(demoSwagger)
+            const parsedResult = parseSwagger(demoSwaggerString)
+            const {data: serviceData, error: serviceError} = await supabase
+                .from('services')
+                .insert({
+                    ...parsedResult.service,
+                    is_mcp_enabled: true,
+                    name: "Demo Project",
+                    description: "Demo project for JSON Placeholder API with enabled MCP Server",
+                })
+                .select()
+                .single()
 
-        setIsOpen(false)
+            if (serviceError) {
+                throw serviceError
+            }
+            const endpointsToInsert = parsedResult.endpoints.map(e => ({
+                ...e,
+                service_id: serviceData.id
+            }))
+            const {error: endpointsError} = await supabase
+                .from('endpoints')
+                .insert(endpointsToInsert)
+
+            if (endpointsError) {
+                throw endpointsError
+            }
+            setIsOpen(false)
+            toast.success("Demo project created successfully!")
+            router.push(`/services/${serviceData.id}`)
+
+        } catch (error) {
+            console.error("Error creating demo project:", error)
+            toast.error("Failed to create demo project", {
+                description: error instanceof Error ? error.message : "Unknown error"
+            })
+        } finally {
+            setIsLoading(false)
+        }
     }
 
-    const onImport = ()=>{
+    const onImport = () => {
         router.push("/services/import")
         setIsOpen(false)
     }
 
-    const onManual = ()=>{
+    const onManual = () => {
         router.push("/services/new")
         setIsOpen(false)
-
     }
-
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -49,7 +91,10 @@ export default function OnboardingModal() {
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                    <Card className="cursor-pointer hover:border-primary/50 transition-colors flex justify-between items-center">
+                    <Card
+                        onClick={onDemoProject}
+                        className={`cursor-pointer hover:border-primary/50 transition-colors flex justify-between items-center ${isLoading ? 'opacity-70' : ''}`}
+                    >
                         <div className="flex-1">
                             <CardHeader className="pb-2">
                                 <CardTitle className="flex items-center">
@@ -65,13 +110,19 @@ export default function OnboardingModal() {
                             </CardContent>
                         </div>
                         <div className="pr-6">
-                            <Button variant="ghost">
-                                Get started <ArrowRight className="ml-2 h-4 w-4"/>
+                            <Button variant="ghost" disabled={isLoading}>
+                                {isLoading ? "Creating..." : (
+                                    <>Get started <ArrowRight className="ml-2 h-4 w-4"/></>
+                                )}
                             </Button>
                         </div>
                     </Card>
 
-                    <Card onClick={onImport} className="cursor-pointer hover:border-primary/50 transition-colors flex justify-between items-center">
+                    <Card
+                        onClick={onImport}
+                        className="cursor-pointer hover:border-primary/50 transition-colors flex justify-between items-center"
+                        aria-disabled={isLoading}
+                    >
                         <div className="flex-1">
                             <CardHeader className="pb-2">
                                 <CardTitle className="flex items-center">
@@ -81,19 +132,24 @@ export default function OnboardingModal() {
                             </CardHeader>
                             <CardContent>
                                 <CardDescription>
-                                    Import your existing API from OpenAPI/Swagger, Postman, or other formats to get started
+                                    Import your existing API from OpenAPI/Swagger, Postman, or other formats to get
+                                    started
                                     quickly.
                                 </CardDescription>
                             </CardContent>
                         </div>
                         <div className="pr-6">
-                            <Button variant="ghost">
+                            <Button variant="ghost" disabled={isLoading}>
                                 Import now <ArrowRight className="ml-2 h-4 w-4"/>
                             </Button>
                         </div>
                     </Card>
 
-                    <Card onClick={onManual} className="cursor-pointer hover:border-primary/50 transition-colors flex justify-between items-center">
+                    <Card
+                        onClick={onManual}
+                        className="cursor-pointer hover:border-primary/50 transition-colors flex justify-between items-center"
+                        aria-disabled={isLoading}
+                    >
                         <div className="flex-1">
                             <CardHeader className="pb-2">
                                 <CardTitle className="flex items-center">
@@ -109,7 +165,7 @@ export default function OnboardingModal() {
                             </CardContent>
                         </div>
                         <div className="pr-6">
-                            <Button variant="ghost">
+                            <Button variant="ghost" disabled={isLoading}>
                                 Create service <ArrowRight className="ml-2 h-4 w-4"/>
                             </Button>
                         </div>
@@ -117,7 +173,13 @@ export default function OnboardingModal() {
                 </div>
 
                 <div className="flex justify-center">
-                    <Button variant="link" size="sm" onClick={() => setIsOpen(false)} className="text-muted-foreground">
+                    <Button
+                        variant="link"
+                        size="sm"
+                        onClick={() => setIsOpen(false)}
+                        className="text-muted-foreground"
+                        disabled={isLoading}
+                    >
                         I'll explore on my own
                     </Button>
                 </div>
