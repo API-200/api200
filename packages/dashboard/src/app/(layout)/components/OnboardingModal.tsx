@@ -11,21 +11,46 @@ import {createClient} from "@/utils/supabase/client"
 import {parseSwagger} from "@/app/(layout)/services/import/parseSwagger"
 import {demoSwagger} from "@/utils/data/demoSwagger"
 
+const completeOnboarding = () => {
+    localStorage.setItem('onboarding_complete', 'true')
+}
+
 export default function OnboardingModal() {
     const router = useRouter()
     const supabase = createClient()
     const [isOpen, setIsOpen] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
 
-    // Show the modal when the component mounts (for new users)
     useEffect(() => {
-        // In a real app, you'd check if the user is new before showing the modal
-        // For example: if (localStorage.getItem('isNewUser') === 'true')
-        setIsOpen(true)
+        const checkUserServices = async () => {
+            try {
+                const onboardingComplete = localStorage.getItem('onboarding_complete') === 'true'
+                if (onboardingComplete) {
+                    return
+                }
 
-        // You could set a flag to not show this again
-        // localStorage.setItem('isNewUser', 'false')
-    }, [])
+                const {data: services, error} = await supabase
+                    .from('services')
+                    .select('id')
+                    .limit(1)
+
+                if (error) {
+                    console.error("Error checking user services:", error)
+                    return
+                }
+
+                if (!services || services.length === 0) {
+                    setIsOpen(true)
+                } else {
+                    completeOnboarding()
+                }
+            } catch (error) {
+                console.error("Error in onboarding check:", error)
+            }
+        }
+
+        checkUserServices()
+    }, [supabase])
 
     const onDemoProject = async () => {
         try {
@@ -57,6 +82,7 @@ export default function OnboardingModal() {
             if (endpointsError) {
                 throw endpointsError
             }
+            completeOnboarding()
             setIsOpen(false)
             toast.success("Demo project created successfully!")
             router.push(`/services/${serviceData.id}`)
@@ -72,12 +98,19 @@ export default function OnboardingModal() {
     }
 
     const onImport = () => {
+        completeOnboarding()
         router.push("/services/import")
         setIsOpen(false)
     }
 
     const onManual = () => {
+        completeOnboarding()
         router.push("/services/new")
+        setIsOpen(false)
+    }
+
+    const onExploreOwn = () => {
+        completeOnboarding()
         setIsOpen(false)
     }
 
@@ -176,7 +209,7 @@ export default function OnboardingModal() {
                     <Button
                         variant="link"
                         size="sm"
-                        onClick={() => setIsOpen(false)}
+                        onClick={onExploreOwn}
                         className="text-muted-foreground"
                         disabled={isLoading}
                     >
