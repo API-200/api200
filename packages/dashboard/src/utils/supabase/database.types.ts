@@ -135,13 +135,13 @@ export type Database = {
         Insert: {
           created_at?: string | null
           endpoint_id: number
-          id?: never
+          id?: number
           schema?: Json | null
         }
         Update: {
           created_at?: string | null
           endpoint_id?: number
-          id?: never
+          id?: number
           schema?: Json | null
         }
         Relationships: [
@@ -316,18 +316,21 @@ export type Database = {
           billing_started_at: string
           calls_count: number
           id: number
+          mcp_calls_count: number
           user_id: string
         }
         Insert: {
           billing_started_at?: string
           calls_count?: number
           id?: number
+          mcp_calls_count?: number
           user_id: string
         }
         Update: {
           billing_started_at?: string
           calls_count?: number
           id?: number
+          mcp_calls_count?: number
           user_id?: string
         }
         Relationships: []
@@ -345,6 +348,13 @@ export type Database = {
           p_method: string
         }
         Returns: Json
+      }
+      increment_mcp_usage: {
+        Args: { p_user_id: string; p_max_requests: number }
+        Returns: {
+          allowed: boolean
+          c_count: number
+        }[]
       }
       increment_usage: {
         Args: { p_user_id: string; p_max_requests: number }
