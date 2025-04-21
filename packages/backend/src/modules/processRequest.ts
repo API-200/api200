@@ -84,7 +84,7 @@ export async function processRequest(
 
     const responseData = response.data;
 
-    if (methodsToWatchResponseSchema.includes(ctx.method.toLowerCase())) {
+    if (responseData && methodsToWatchResponseSchema.includes(ctx.method.toLowerCase())) {
         const responseSchema = toJsonSchema(responseData, { strings: { detectFormat: false } })
         checkResponseSchema(userId, endpointData, responseSchema);
     }
