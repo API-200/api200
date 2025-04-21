@@ -474,9 +474,8 @@ function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], ba
             if (request.body) {
                 if (request.body.mode === 'raw' && request.body.raw) {
                     try {
-                        // Try to parse JSON body
-                        const bodyJson = JSON.parse(request.body.raw);
-                        for (const [key, value] of Object.entries(bodyJson)) {
+                        const body = request.body.raw;
+                        for (const [key, value] of Object.entries(body)) {
                             parameters.push({
                                 name: key,
                                 in: 'body',
