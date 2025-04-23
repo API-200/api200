@@ -60,6 +60,7 @@ interface PostmanUrl {
     host?: string[];
     path?: string[];
     query?: PostmanQuery[];
+    variable?: PostmanVariable[];
 }
 
 interface PostmanQuery {
@@ -140,23 +141,61 @@ function createServiceObject(postman: PostmanCollection): Tables<'services'> {
  * Determine the base URL from Postman collection
  */
 function determineBaseUrl(postman: PostmanCollection): string {
-    // Check if there's a base_url variable
-    const baseUrlVar = postman.variable?.find(v => v.key === 'base_url');
-    if (baseUrlVar?.value) {
-        return baseUrlVar.value;
+    // Check for common base URL variable names
+    const baseUrlVarNames = ['base_url', 'baseUrl', 'baseURL', 'BASE_URL', 'apiUrl', 'api_url', 'url', 'host'];
+    let baseUrl = null;
+
+    // First check collection variables
+    if (postman.variable && postman.variable.length > 0) {
+        for (const varName of baseUrlVarNames) {
+            const baseUrlVar = postman.variable.find(v => v.key.toLowerCase() === varName.toLowerCase());
+            if (baseUrlVar?.value) {
+                // Remove trailing slashes
+                return baseUrlVar.value.replace(/\/+$/, '');
+            }
+        }
     }
 
-    // Otherwise try to extract from the first request URL
+    // Then try to extract from the first request URL
     const firstRequest = findFirstRequest(postman.item);
     if (firstRequest?.request?.url) {
         const url = firstRequest.request.url;
+
+        // Check if URL has variables
+        if (url.variable && url.variable.length > 0) {
+            for (const varName of baseUrlVarNames) {
+                const urlVar = url.variable.find(v => v.key.toLowerCase() === varName.toLowerCase());
+                if (urlVar?.value) {
+                    return urlVar.value.replace(/\/+$/, '');
+                }
+            }
+        }
+
+        // Try to extract from host and protocol
         if (url.protocol && url.host) {
-            return `${url.protocol}://${url.host.join('.')}`;
-        } else if (url.raw) {
-            // Try to extract from raw URL
-            const urlMatch = url.raw.match(/^(https?:\/\/[^\/]+)/);
+            return `${url.protocol}://${url.host.join('.')}`.replace(/\/+$/, '');
+        }
+        // Try to extract from raw URL
+        else if (url.raw) {
+            // First try to resolve any variables in the raw URL
+            let resolvedRaw = url.raw;
+
+            // Replace variables like {{base_url}} with their values if found
+            const varMatches = resolvedRaw.match(/\{\{([^}]+)\}\}/g);
+            if (varMatches && postman.variable) {
+                for (const match of varMatches) {
+                    const varName = match.replace(/\{\{|\}\}/g, '');
+                    const variable = postman.variable.find(v => v.key === varName);
+                    if (variable?.value) {
+                        resolvedRaw = resolvedRaw.replace(match, variable.value);
+                    }
+                }
+            }
+
+            // Extract the base URL (protocol + host)
+            const urlMatch = resolvedRaw.match(/^(https?:\/\/[^\/]+)/);
             if (urlMatch) {
-                return urlMatch[1];
+                return urlMatch[1].replace(/\/+$/, '');
             }
         }
     }
@@ -390,13 +429,13 @@ function createEndpointsArray(postman: PostmanCollection, baseUrl: string): Tabl
 /**
  * Process Postman items recursively and add endpoints
  */
-function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], baseUrl: string, parentPath: string = ''): void {
+function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], baseUrl: string, serviceId?: number, parentPath: string = ''): void {
     for (const item of items) {
         // If this is a folder, process its items recursively
         if (item.item && item.item.length > 0) {
             // Use the folder name as part of the path
             const folderPath = parentPath ? `${parentPath}/${formatPath(item.name)}` : formatPath(item.name);
-            processItems(item.item, endpoints, baseUrl, folderPath);
+            processItems(item.item, endpoints, baseUrl, serviceId, folderPath);
         }
         // If this is a request, add it as an endpoint
         else if (item.request) {
@@ -417,9 +456,27 @@ function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], ba
                 // Join path segments
                 path = '/' + request.url.path.join('/');
             } else if (request.url.raw) {
-                // Try to extract path from raw URL
-                const urlObj = new URL(request.url.raw.replace(/{{.*?}}/g, 'placeholder'));
-                path = urlObj.pathname;
+                try {
+                    // Try to extract path from raw URL
+                    // Replace any variable placeholders with a placeholder string
+                    const sanitizedUrl = request.url.raw.replace(/\{\{.*?\}\}/g, 'placeholder');
+                    // If the URL doesn't have a protocol, add one
+                    const urlWithProtocol = sanitizedUrl.startsWith('http')
+                        ? sanitizedUrl
+                        : `https://${sanitizedUrl}`;
+
+                    const urlObj = new URL(urlWithProtocol);
+                    path = urlObj.pathname;
+                } catch (error) {
+                    // If URL parsing fails, try to extract path with regex
+                    const pathMatch = request.url.raw.match(/https?:\/\/[^\/]+(\/[^?#]*)/);
+                    if (pathMatch && pathMatch[1]) {
+                        path = pathMatch[1];
+                    } else {
+                        // If we still can't extract, use the raw URL as the name
+                        path = request.url.raw;
+                    }
+                }
             }
 
             // Skip if we couldn't determine a path
@@ -470,6 +527,34 @@ function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], ba
                 }
             }
 
+            // Add path parameters if they exist (extracted from the path)
+            const pathParams = path.match(/{([^}]+)}/g);
+            if (pathParams) {
+                for (const param of pathParams) {
+                    const paramName = param.replace(/[{}]/g, '');
+                    parameters.push({
+                        name: paramName,
+                        in: 'path',
+                        required: true,
+                        type: 'string',
+                        description: `Path parameter ${paramName}`
+                    });
+                }
+            }
+
+            // Add header parameters from request headers
+            if (request.header && request.header.length > 0) {
+                for (const header of request.header) {
+                    parameters.push({
+                        name: header.key,
+                        in: 'header',
+                        required: false,
+                        type: 'string',
+                        description: ''
+                    });
+                }
+            }
+
             // Add body parameters if they exist
             if (request.body) {
                 if (request.body.mode === 'raw' && request.body.raw) {
@@ -485,7 +570,13 @@ function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], ba
                             });
                         }
                     } catch (e) {
-                        throw e;
+                        parameters.push({
+                            name: 'body',
+                            in: 'body',
+                            required: false,
+                            type: 'string',
+                            description: 'Raw request body'
+                        });
                     }
                 } else if (request.body.mode === 'formdata' && request.body.formdata) {
                     for (const formParam of request.body.formdata) {
@@ -493,7 +584,7 @@ function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], ba
                             name: formParam.key,
                             in: 'formData',
                             required: false,
-                            type: 'string',
+                            type: formParam.type || 'string',
                             description: ''
                         });
                     }
@@ -510,13 +601,14 @@ function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], ba
                 }
             }
 
-            // Create the endpoint object
-            const endpoint: Partial<Tables<'endpoints'>> = {
-                name: path,
+
+            // Create default values for all the required fields in the endpoint schema
+            const endpoint: Tables<'endpoints'> = {
+                name: item.name || path,
+                description: description,
                 method: method,
                 full_url: full_url,
                 regex_path: regex_path,
-                description: description,
                 source: 'postman',
                 schema: {
                     parameters: parameters,
@@ -525,10 +617,10 @@ function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], ba
                             description: "Successful operation"
                         }
                     }
-                }
-            };
+                },
+            } as unknown as Tables<'endpoints'>;
 
-            endpoints.push(endpoint as Tables<'endpoints'>);
+            endpoints.push(endpoint);
         }
     }
 }
@@ -550,5 +642,8 @@ function formatPath(path: string): string {
  */
 function formatEndpointPath(path: string): string {
     // Replace URL param placeholders like :id with {id}
-    return path.replace(/:([a-zA-Z0-9_]+)/g, '{$1}');
+    return path
+        .replace(/:([a-zA-Z0-9_]+)/g, '{$1}')
+        // Also normalize any path with {{variable}} to {variable}
+        .replace(/\{\{([^}]+)\}\}/g, '{$1}');
 }
