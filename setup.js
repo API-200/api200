@@ -27,7 +27,7 @@ function generateRandomString(length = 32, includeSpecialChars = false) {
         .join('');
 }
 
-function generateJwt(secret, role, expiresIn = 3600) {
+function generateJwt(secret, role, expiresIn) {
     const payload = {
         role: role,
         iss: 'supabase',
@@ -98,12 +98,13 @@ function generateEnvFiles(hostname) {
     try {
         const JWT_SECRET = generateRandomString(40);
         const SUPABASE_HOST = hostname === 'localhost' ? 'kong' : hostname;
+        const SUPABASE_KEY_EXP_S = 1 * 365 * 24 * 60 * 60; // 1 year
 
         const randomValues = {
             POSTGRES_PASSWORD: generateRandomString(16),
             JWT_SECRET,
-            ANON_KEY: generateJwt(JWT_SECRET, 'anon'),
-            SERVICE_ROLE_KEY: generateJwt(JWT_SECRET, 'service_role'),
+            ANON_KEY: generateJwt(JWT_SECRET, 'anon', SUPABASE_KEY_EXP_S),
+            SERVICE_ROLE_KEY: generateJwt(JWT_SECRET, 'service_role', SUPABASE_KEY_EXP_S),
             DASHBOARD_USERNAME: 'supabase',
             DASHBOARD_PASSWORD: generateRandomString(16),
             SECRET_KEY_BASE: generateRandomString(64),

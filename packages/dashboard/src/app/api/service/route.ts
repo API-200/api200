@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { randomBytes, createCipheriv } from "crypto";
-import {dropServiceEndpointsCaches} from "@/app/api/utils";
+import { dropServiceEndpointsCaches } from "@/app/api/utils";
 import { createClient } from '@/utils/supabase/server';
 import { env } from 'next-runtime-env';
 
@@ -49,10 +49,16 @@ export async function POST(req: Request) {
                 .eq("id", body.id)
                 .select()
                 .single();
+
+            if (result.error) throw result.error;
+
+            result = await supabase.rpc("update_full_url", { p_service_id: body.id })
         }
 
         if (result.error) throw result.error;
+
         await dropServiceEndpointsCaches(userId!, body.serviceName);
+
         return NextResponse.json(result.data);
     } catch (error: any) {
         return NextResponse.json(
