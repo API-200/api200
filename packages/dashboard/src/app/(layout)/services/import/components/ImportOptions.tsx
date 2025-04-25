@@ -183,8 +183,8 @@ export default function ImportOptions({ onImportComplete }: ImportOptionsProps) 
                                     <Image
                                         src={service.image || "/placeholder.svg"}
                                         alt={`${service.name} logo`}
-                                        width={80}
-                                        height={80}
+                                        width={64}
+                                        height={64}
                                         className="rounded-md"
                                     />
                                 </div>

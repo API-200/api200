@@ -265,7 +265,7 @@ function determineAuthSettings(postman: PostmanCollection): {
                     authConfig: {
                         ...authConfig,
                         api_key_header: keyItem.value,
-                        api_key: valueItem.value,
+                        api_key: null,
                         api_key_location: 'header'
                     }
                 };
@@ -280,7 +280,7 @@ function determineAuthSettings(postman: PostmanCollection): {
                     authEnabled: true,
                     authConfig: {
                         ...authConfig,
-                        bearer_token: tokenItem.value
+                        bearer_token: null
                     }
                 };
             }
@@ -604,7 +604,7 @@ function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], ba
 
             // Create default values for all the required fields in the endpoint schema
             const endpoint: Tables<'endpoints'> = {
-                name: item.name || path,
+                name: path,
                 description: description,
                 method: method,
                 full_url: full_url,
