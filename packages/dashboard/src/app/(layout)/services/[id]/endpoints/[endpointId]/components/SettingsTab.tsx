@@ -45,7 +45,7 @@ export default function Settings({endpoint, service}: Props) {
         resolver: zodResolver(endpointSchema),
         defaultValues: {
             name: endpoint.name ?? "",
-            path: endpoint.full_url.replace(service.base_url, ''),
+            path: endpoint.path ?? "",
             method: endpoint.method as "GET" ?? "GET",
             caching: endpoint.cache_enabled ?? true,
             cache_ttl_s: (endpoint.cache_ttl_s ?? 60).toString(),
@@ -150,6 +150,7 @@ export default function Settings({endpoint, service}: Props) {
                 userId: service.user_id,
                 customHeadersEnabled: data.customHeadersEnabled,
                 customHeaders: JSON.parse(data.customHeaders ?? ''),
+                path: data.path,
             })
         })
             .then(response => response.json())

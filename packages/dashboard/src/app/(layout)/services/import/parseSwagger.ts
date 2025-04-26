@@ -253,6 +253,7 @@ function createEndpointsArray(swagger: SwaggerSchema, baseUrl: string): Tables<'
             // Create endpoint object
             const endpoint: Partial<Tables<'endpoints'>> = {
                 name,
+                path: path,
                 method: method.toUpperCase(),
                 full_url,
                 regex_path,

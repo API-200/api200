@@ -514,6 +514,7 @@ function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], ba
             // Create the endpoint object
             const endpoint: Partial<Tables<'endpoints'>> = {
                 name: path,
+                path: path,
                 method: method,
                 full_url: full_url,
                 regex_path: regex_path,
