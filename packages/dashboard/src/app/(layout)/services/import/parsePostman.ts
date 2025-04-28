@@ -143,7 +143,6 @@ function createServiceObject(postman: PostmanCollection): Tables<'services'> {
 function determineBaseUrl(postman: PostmanCollection): string {
     // Check for common base URL variable names
     const baseUrlVarNames = ['base_url', 'baseUrl', 'baseURL', 'BASE_URL', 'apiUrl', 'api_url', 'url', 'host'];
-    let baseUrl = null;
 
     // First check collection variables
     if (postman.variable && postman.variable.length > 0) {
@@ -468,6 +467,7 @@ function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], ba
                     const urlObj = new URL(urlWithProtocol);
                     path = urlObj.pathname;
                 } catch (error) {
+                    console.error(error)
                     // If URL parsing fails, try to extract path with regex
                     const pathMatch = request.url.raw.match(/https?:\/\/[^\/]+(\/[^?#]*)/);
                     if (pathMatch && pathMatch[1]) {
@@ -570,6 +570,7 @@ function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], ba
                             });
                         }
                     } catch (e) {
+                        console.error(e);
                         parameters.push({
                             name: 'body',
                             in: 'body',
