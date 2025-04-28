@@ -43,19 +43,19 @@ export default function ImportOptions({ onImportComplete }: ImportOptionsProps) 
         }
     }
 
-    const processImport = async (file: File | null, method: string | null) => {
+    const processImport = async (file: File | null, method: string | null, fileContent?: string) => {
         setIsLoading(true)
         setError(null)
 
         try {
             if (method === "openapi" && file) {
-                const fileText = await file.text()
+                const fileText = fileContent || await file.text()
                 const parsedResult = parseSwagger(fileText)
                 console.log("parsedResult")
                 console.log(parsedResult)
                 return parsedResult
-            } else if (method === "postman" && file) {
-                const fileText = await file.text()
+            } else if (method === "postman" && (file || fileContent)) {
+                const fileText = fileContent || await file!.text()
                 const parsedResult = parsePostman(fileText)
                 return parsedResult
             } else if (method === "url") {
@@ -73,9 +73,9 @@ export default function ImportOptions({ onImportComplete }: ImportOptionsProps) 
         }
     }
 
-    const handleImport = async (file: File | null, method: string | null) => {
+    const handleImport = async (file: File | null, method: string | null, fileContent?: string) => {
         try {
-            const data = await processImport(file, method)
+            const data = await processImport(file, method, fileContent)
             onImportComplete(data!)
         } catch (error) {
             console.error("Error processing import:", error)
@@ -83,10 +83,30 @@ export default function ImportOptions({ onImportComplete }: ImportOptionsProps) 
         }
     }
 
-    const handleApiServiceSelect = (serviceName: string) => {
-        // This would typically initiate the import process for the selected API service
-        console.log(`Selected API service: ${serviceName}`)
-        // For demonstration, we could show a loading state or navigate to a specific import flow
+    const handleApiServiceSelect = async (service: typeof apiServices[0]) => {
+        setIsLoading(true)
+        setError(null)
+
+        try {
+            // Fetch the Postman collection from the configUrl
+            const response = await fetch(service.configUrl)
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch API service configuration: ${response.statusText}`)
+            }
+
+            const collectionData = await response.text()
+
+            // Process the fetched Postman collection
+            await handleImport(null, "postman", collectionData)
+
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "Failed to import API service"
+            setError(errorMessage)
+            console.error("Error importing API service:", error)
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     const filteredApiServices = apiServices.filter((service) =>
@@ -188,11 +208,15 @@ export default function ImportOptions({ onImportComplete }: ImportOptionsProps) 
                                         className="rounded-md"
                                     />
                                 </div>
-                                <CardContent className="flex-1 p-6 pt-4 md:pt-6">
+                                <CardContent className="flex-1 p-6 pl-0">
                                     <CardTitle className="mb-2">{service.name}</CardTitle>
-                                    <CardDescription className="mb-4">{service.description}</CardDescription>
-                                    <Button variant="outline" onClick={() => handleApiServiceSelect(service.name)} className="mt-auto">
-                                        Import
+                                    <CardDescription className="mb-2">{service.description}</CardDescription>
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => handleApiServiceSelect(service)}
+                                        disabled={isLoading}
+                                    >
+                                        {isLoading ? "Importing..." : "Import"}
                                     </Button>
                                 </CardContent>
                             </div>
