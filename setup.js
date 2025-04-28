@@ -27,6 +27,10 @@ function generateRandomString(length = 32, includeSpecialChars = false) {
         .join('');
 }
 
+function generateEncryptionKey() {
+    return crypto.randomBytes(32).toString('hex');
+}
+
 function generateJwt(secret, role, expiresIn) {
     const payload = {
         role: role,
@@ -112,7 +116,7 @@ function generateEnvFiles(hostname) {
             LOGFLARE_LOGGER_BACKEND_API_KEY: generateRandomString(64),
             LOGFLARE_API_KEY: generateRandomString(64),
             POOLER_TENANT_ID: generateRandomString(16),
-            ENCRYPTION_KEY: generateRandomString(64),
+            ENCRYPTION_KEY: generateEncryptionKey(),
         };
 
         const supabaseEnv = `

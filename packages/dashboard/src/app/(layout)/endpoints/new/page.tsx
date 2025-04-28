@@ -158,6 +158,7 @@ export default function AddApi() {
                     regexPath: '^' + data.name.replace(/{[^}]+}/g, '([^/]+)') + '$',
                     customHeadersEnabled: data.customHeadersEnabled,
                     customHeaders: JSON.parse(data.customHeaders ?? ''),
+                    path: data.path,
                 }
             )
         })

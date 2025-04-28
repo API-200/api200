@@ -57,7 +57,7 @@ export async function POST(req: Request) {
 
         if (result.error) throw result.error;
 
-        await dropServiceEndpointsCaches(userId!, body.serviceName);
+        await dropServiceEndpointsCaches(userId!, body.name);
 
         return NextResponse.json(result.data);
     } catch (error: any) {

@@ -31,6 +31,7 @@ export async function POST(req: any) {
                 regex_path: '^' + data.name.replace(/{[^}]+}/g, '([^/]+)') + '$',
                 custom_headers_enabled: data.customHeadersEnabled,
                 custom_headers: data.customHeaders,
+                path: data.path,
             })
             .select()
             .single();
@@ -76,6 +77,7 @@ export async function PUT(req: any) {
                 regex_path: '^' + data.name.replace(/{[^}]+}/g, '([^/]+)') + '$',
                 custom_headers_enabled: data.customHeadersEnabled,
                 custom_headers: data.customHeaders,
+                path: data.path,
             })
             .eq('id', endpointId);
 

@@ -50,6 +50,7 @@ export type Database = {
           mock_response: Json | null
           mock_status_code: number | null
           name: string
+          path: string | null
           regex_path: string | null
           retry_count: number
           retry_enabled: boolean
@@ -78,6 +79,7 @@ export type Database = {
           mock_response?: Json | null
           mock_status_code?: number | null
           name: string
+          path?: string | null
           regex_path?: string | null
           retry_count?: number
           retry_enabled?: boolean
@@ -106,6 +108,7 @@ export type Database = {
           mock_response?: Json | null
           mock_status_code?: number | null
           name?: string
+          path?: string | null
           regex_path?: string | null
           retry_count?: number
           retry_enabled?: boolean
@@ -316,21 +319,18 @@ export type Database = {
           billing_started_at: string
           calls_count: number
           id: number
-          mcp_calls_count: number
           user_id: string
         }
         Insert: {
           billing_started_at?: string
           calls_count?: number
           id?: number
-          mcp_calls_count?: number
           user_id: string
         }
         Update: {
           billing_started_at?: string
           calls_count?: number
           id?: number
-          mcp_calls_count?: number
           user_id?: string
         }
         Relationships: []
@@ -362,6 +362,10 @@ export type Database = {
           allowed: boolean
           c_count: number
         }[]
+      }
+      update_full_url: {
+        Args: { p_service_id: number }
+        Returns: undefined
       }
     }
     Enums: {

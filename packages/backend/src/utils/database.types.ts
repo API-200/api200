@@ -50,6 +50,7 @@ export type Database = {
           mock_response: Json | null
           mock_status_code: number | null
           name: string
+          path: string | null
           regex_path: string | null
           retry_count: number
           retry_enabled: boolean
@@ -78,6 +79,7 @@ export type Database = {
           mock_response?: Json | null
           mock_status_code?: number | null
           name: string
+          path?: string | null
           regex_path?: string | null
           retry_count?: number
           retry_enabled?: boolean
@@ -106,6 +108,7 @@ export type Database = {
           mock_response?: Json | null
           mock_status_code?: number | null
           name?: string
+          path?: string | null
           regex_path?: string | null
           retry_count?: number
           retry_enabled?: boolean
@@ -135,13 +138,13 @@ export type Database = {
         Insert: {
           created_at?: string | null
           endpoint_id: number
-          id?: never
+          id?: number
           schema?: Json | null
         }
         Update: {
           created_at?: string | null
           endpoint_id?: number
-          id?: never
+          id?: number
           schema?: Json | null
         }
         Relationships: [
@@ -346,12 +349,23 @@ export type Database = {
         }
         Returns: Json
       }
+      increment_mcp_usage: {
+        Args: { p_user_id: string; p_max_requests: number }
+        Returns: {
+          allowed: boolean
+          c_count: number
+        }[]
+      }
       increment_usage: {
         Args: { p_user_id: string; p_max_requests: number }
         Returns: {
           allowed: boolean
           c_count: number
         }[]
+      }
+      update_full_url: {
+        Args: { p_service_id: number }
+        Returns: undefined
       }
     }
     Enums: {

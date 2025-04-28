@@ -606,6 +606,7 @@ function processItems(items: PostmanItem[], endpoints: Tables<'endpoints'>[], ba
             const endpoint: Tables<'endpoints'> = {
                 name: path,
                 description: description,
+                path: path,
                 method: method,
                 full_url: full_url,
                 regex_path: regex_path,
