@@ -2,6 +2,7 @@ import { getRedisClient } from '@/utils/redis/cache';
 
 export async function dropServiceEndpointsCaches(userId: string, serviceName: string) {
     const redisClient = await getRedisClient();
+    console.log(`keyv::keyv:route:${userId}:${serviceName}:*`)
     const endpointsKeys = await redisClient.keys(`keyv::keyv:route:${userId}:${serviceName}:*`);
 
     if (endpointsKeys.length) {

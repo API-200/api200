@@ -3,7 +3,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
     serverExternalPackages: ['cache-manager', '@keyv/redis', 'redis'],
-    output: 'standalone'
+    output: 'standalone',
+    images: {
+        domains: ['res.cloudinary.com'],
+    },
 };
 
 export default withSentryConfig(withSentryConfig(nextConfig, {
