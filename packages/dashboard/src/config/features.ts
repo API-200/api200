@@ -7,6 +7,7 @@ const FEATURES = {
     SIDEBAR: {
         SHOW_USAGE: !isSelfHosted,
         SHOW_REGION: !isSelfHosted,
+        SHOW_SUBSCRIPTIONS: !isSelfHosted,
     },
     ANALYTICS: {
         ENABLE_SENTRY: !isSelfHosted,
