@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/api-200-api200-badge.png)](https://mseep.ai/app/api-200-api200)
+
 <img src="assets/banner.png" alt="API 200 Logo" style="width:100%; display:block;">
 
 <p align="center" style="margin-top: 20px">
