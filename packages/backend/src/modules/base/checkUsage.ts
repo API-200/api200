@@ -1,12 +1,21 @@
+import { PLANS } from '@utils/constants';
 import { supabase } from '../../utils/supabase';
-import { BASIC_PLAN_MAX_REQUESTS } from '../../utils/constants';
 
 export async function checkUsage(
     userId: string,
 ): Promise<{ error?: string; status?: number }> {
+
+    const { data: proSubscriptionExists, error: subscriptionCheckError } = await supabase.rpc('check_subscription', { p_user_id: userId });
+    const maxRequests = proSubscriptionExists ? PLANS.PRO.REQUESTS_PER_MONTH : PLANS.BASIC.REQUESTS_PER_MONTH;
+
+    if (subscriptionCheckError) {
+        console.error('Error checking subscription:', subscriptionCheckError);
+        return { error: 'API200 Error: Internal server error', status: 500 };
+    }
+
     const { data, error } = await supabase.rpc('increment_usage', {
         p_user_id: userId,
-        p_max_requests: BASIC_PLAN_MAX_REQUESTS,
+        p_max_requests: maxRequests,
     });
 
     if (error) {
@@ -19,7 +28,7 @@ export async function checkUsage(
 
     if (!result?.allowed) {
         return {
-            error: `API200 Error: Monthly usage limit exceeded (${result?.c_count}/${BASIC_PLAN_MAX_REQUESTS})`,
+            error: `API200 Error: Monthly usage limit exceeded (${result?.c_count}/${maxRequests})`,
             status: 429,
         };
     }
