@@ -6,7 +6,7 @@ import {
   SubscriptionCreatedEvent,
   SubscriptionUpdatedEvent,
 } from '@paddle/paddle-node-sdk';
-import { createClient } from '../supabase/server';
+import { UNSAFE_createAdminClient } from '../supabase/admin';
 
 export class ProcessWebhook {
   async processEvent(eventData: EventEntity) {
@@ -23,7 +23,7 @@ export class ProcessWebhook {
   }
 
   private async updateSubscriptionData(eventData: SubscriptionCreatedEvent | SubscriptionUpdatedEvent) {
-    const supabase = await createClient();
+    const supabase = await UNSAFE_createAdminClient();
     const { error } = await supabase
       .from('subscriptions')
       .upsert({
@@ -40,7 +40,7 @@ export class ProcessWebhook {
   }
 
   private async updateCustomerData(eventData: CustomerCreatedEvent | CustomerUpdatedEvent) {
-    const supabase = await createClient();
+    const supabase = await UNSAFE_createAdminClient();
     const { error } = await supabase
       .from('customers')
       .upsert({
