@@ -4,37 +4,42 @@ import {useState} from "react";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {CheckCircle, XCircle} from "lucide-react";
+import {usePaddle} from "@/hooks/usePaddle";
+import {createClient} from "@/utils/supabase/server";
 
-export default function PlansComparison({initialSubscription}) {
+const pro_monthly_id = "pri_01jv5ewwzjg4ab4dzzgm5xc1d5"
+const pro_yearly_id = "pri_01jv5ey9ahq6xb8es0v14z741p"
+
+type Props = {
+    initialSubscription: any
+    customerData: {
+        email: string
+    }
+}
+
+export default async function PlansComparison({initialSubscription, customerData}:Props) {
+
     const [subscription, setSubscription] = useState(initialSubscription);
     const [billingCycle, setBillingCycle] = useState(initialSubscription.billingCycle);
+    const {paddle, error, openCheckout} = usePaddle();
 
     // Handle upgrade
-    const handleUpgrade = async () => {
+    const handleUpgrade = async (priceId: string) => {
         try {
-            // In a real app, you would call an API endpoint
-            // await fetch('/api/subscription/upgrade', {
-            //   method: 'POST',
-            //   body: JSON.stringify({ plan: 'pro', billingCycle })
-            // });
-
-            setSubscription({
-                ...subscription,
-                type: "pro",
-                requests: {
-                    used: subscription.requests.used,
-                    total: 10000
-                },
-                billingCycle: billingCycle,
-                renewalDate: billingCycle === "monthly" ? "June 14, 2025" : "May 14, 2026"
-            });
+            openCheckout({
+                customer: customerData,
+                items: [{
+                    quantity:1,
+                    priceId
+                }]
+            })
         } catch (error) {
             console.error("Error upgrading subscription:", error);
         }
     };
 
     // Toggle billing cycle
-    const changeBillingCycle = (cycle) => {
+    const changeBillingCycle = (cycle: any) => {
         setBillingCycle(cycle);
     };
 
@@ -133,7 +138,7 @@ export default function PlansComparison({initialSubscription}) {
                         {subscription.type === "pro" ? (
                             <Button disabled variant="outline" className="w-full">Current Plan</Button>
                         ) : (
-                            <Button onClick={handleUpgrade} className="w-full">Upgrade Now</Button>
+                            <Button onClick={()=>handleUpgrade(billingCycle === "yearly" ? pro_yearly_id: pro_monthly_id)} className="w-full">Upgrade Now</Button>
                         )}
                     </CardFooter>
                 </Card>

@@ -1,8 +1,11 @@
 import { Separator } from "@/components/ui/separator";
 import SubscriptionCard from "./components/SubscriptionCard";
 import PlansComparison from "./components/PlansComparison";
+import {createClient} from "@/utils/supabase/server";
 
 export default async function SubscriptionPage() {
+    const supabase = await createClient()
+    const {data: {user}} = await supabase.auth.getUser()
     // In a real app, you would fetch this data server-side
     const userData = {
         subscription: {
@@ -34,7 +37,9 @@ export default async function SubscriptionPage() {
                 {/* Plans Comparison Section */}
                 <div>
                     <h2 className="text-xl font-semibold mb-4">Plans Comparison</h2>
-                    <PlansComparison initialSubscription={userData.subscription} />
+                    <PlansComparison initialSubscription={userData.subscription} customerData={{
+                        email: user?.email!,
+                    }} />
                 </div>
             </div>
         </div>
