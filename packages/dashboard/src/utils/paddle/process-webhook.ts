@@ -33,6 +33,7 @@ export class ProcessWebhook {
         product_id: eventData.data.items[0].price?.productId ?? '',
         scheduled_change: eventData.data.scheduledChange?.effectiveAt,
         customer_id: eventData.data.customerId,
+        next_billed_at: eventData.data.nextBilledAt,
       })
       .select();
 
