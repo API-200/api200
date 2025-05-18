@@ -5,52 +5,35 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {Tables} from "@/utils/supabase/database.types";
+import {PLANS} from "@/utils/constants";
+import {format} from "date-fns";
+import {pro_monthly_id, pro_yearly_id, usePaddle} from "@/hooks/usePaddle";
 
-export default function SubscriptionCard({ initialSubscription }) {
-    const [subscription, setSubscription] = useState(initialSubscription);
+type Props = {
+    subscription: (Tables<'subscriptions'> & Tables<'customers'>) | null;
+    usages: number
+    customerData: {
+        email: string
+    }
+}
 
-    // Calculate usage percentage
-    const usagePercentage = Math.round((subscription.requests.used / subscription.requests.total) * 100);
+export default function SubscriptionCard({ subscription, usages, customerData }: Props) {
+    const {paddle, error, handleUpgrade} = usePaddle();
 
-    // Handle upgrade
-    const handleUpgrade = async () => {
-        try {
-            // In a real app, you would call an API endpoint
-            // await fetch('/api/subscription/upgrade', { method: 'POST' });
+    const isPro = subscription?.subscription_status === "active";
+    const maxRequestsPerMonth = isPro ? PLANS.PRO.REQUESTS_PER_MONTH : PLANS.BASIC.REQUESTS_PER_MONTH
 
-            setSubscription({
-                ...subscription,
-                type: "pro",
-                requests: {
-                    used: subscription.requests.used,
-                    total: 10000
-                },
-                renewalDate: "June 14, 2025",
-                billingCycle: "monthly"
-            });
-        } catch (error) {
-            console.error("Error upgrading subscription:", error);
-        }
-    };
+    const usagePercentage = Math.min((usages / maxRequestsPerMonth) * 100, 100)
 
     // Handle cancel
     const handleCancel = async () => {
-        if (window.confirm("Are you sure you want to cancel your subscription?")) {
-            try {
-                // In a real app, you would call an API endpoint
-                // await fetch('/api/subscription/cancel', { method: 'POST' });
-
-                setSubscription({
-                    ...subscription,
-                    type: "free",
-                    requests: {
-                        used: subscription.requests.used,
-                        total: 100
-                    }
-                });
-            } catch (error) {
-                console.error("Error canceling subscription:", error);
-            }
+        try {
+            paddle?.Retain.initCancellationFlow({
+                subscriptionId: subscription?.subscription_id!,
+            })
+        } catch (error) {
+            console.error("Error canceling subscription:", error);
         }
     };
 
@@ -60,27 +43,27 @@ export default function SubscriptionCard({ initialSubscription }) {
                 <div>
                     <CardTitle className="text-xl flex items-center">
                         <div>
-                            {subscription.type === "pro" ? "Pro Plan" : "Free Plan"}
+                            {isPro ? "Pro Plan" : "Free Plan"}
                         </div>
                         <div className="flex items-center">
-                            {subscription.type === "pro" && (
+                            {isPro && (
                                 <Badge className="ml-3 bg-green-500 hover:bg-green-600">Active</Badge>
                             )}
                         </div>
                     </CardTitle>
                     <CardDescription>
-                        {subscription.type === "pro"
-                            ? `Renews on ${subscription.renewalDate} (${subscription.billingCycle === "monthly" ? "Monthly" : "Yearly"})`
+                        {isPro
+                            ? `Renews on ${format(new Date(subscription?.next_billed_at), "dd MMM yyyy")} (${subscription?.billing_cycle ? "Monthly" : "Yearly"})`
                             : "Limited features"}
                     </CardDescription>
                 </div>
                 <div className="flex space-x-2">
-                    {subscription.type === "pro" ? (
+                    {isPro ? (
                         <Button variant="outline" onClick={handleCancel}>
                             Cancel Subscription
                         </Button>
                     ) : (
-                        <Button onClick={handleUpgrade}>Upgrade</Button>
+                        <Button onClick={() => handleUpgrade(pro_monthly_id, customerData.email)}>Upgrade</Button>
                     )}
                 </div>
             </CardHeader>
@@ -88,7 +71,7 @@ export default function SubscriptionCard({ initialSubscription }) {
                 <div className="mb-2 flex justify-between items-center">
                     <div className="text-sm text-gray-500">API Requests</div>
                     <div className="text-sm font-medium">
-                        {subscription.requests.used} / {subscription.requests.total}
+                        {usages} / {maxRequestsPerMonth}
                     </div>
                 </div>
                 <Progress value={usagePercentage} className="h-2" />

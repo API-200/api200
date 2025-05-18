@@ -4,39 +4,22 @@ import {useState} from "react";
 import {Button} from "@/components/ui/button";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 import {CheckCircle, XCircle} from "lucide-react";
-import {usePaddle} from "@/hooks/usePaddle";
-import {createClient} from "@/utils/supabase/server";
+import {pro_monthly_id, pro_yearly_id, usePaddle} from "@/hooks/usePaddle";
+import {Tables} from "@/utils/supabase/database.types";
 
-const pro_monthly_id = "pri_01jv5ewwzjg4ab4dzzgm5xc1d5"
-const pro_yearly_id = "pri_01jv5ey9ahq6xb8es0v14z741p"
 
 type Props = {
-    initialSubscription: any
+    subscription: (Tables<'subscriptions'> & Tables<'customers'>) | null;
     customerData: {
         email: string
     }
 }
 
-export default async function PlansComparison({initialSubscription, customerData}:Props) {
+export default function PlansComparison({subscription, customerData}: Props) {
 
-    const [subscription, setSubscription] = useState(initialSubscription);
-    const [billingCycle, setBillingCycle] = useState(initialSubscription.billingCycle);
-    const {paddle, error, openCheckout} = usePaddle();
+    const [billingCycle, setBillingCycle] = useState("monthly");
+    const {paddle, error, handleUpgrade} = usePaddle();
 
-    // Handle upgrade
-    const handleUpgrade = async (priceId: string) => {
-        try {
-            openCheckout({
-                customer: customerData,
-                items: [{
-                    quantity:1,
-                    priceId
-                }]
-            })
-        } catch (error) {
-            console.error("Error upgrading subscription:", error);
-        }
-    };
 
     // Toggle billing cycle
     const changeBillingCycle = (cycle: any) => {
@@ -65,7 +48,6 @@ export default async function PlansComparison({initialSubscription, customerData
             </div>
 
             <div className="grid md:grid-cols-2 gap-6">
-                {/* Free Plan */}
                 <Card>
                     <CardHeader>
                         <CardTitle>Free Plan</CardTitle>
@@ -118,7 +100,7 @@ export default async function PlansComparison({initialSubscription, customerData
                         <ul className="space-y-2">
                             <li className="flex items-center">
                                 <CheckCircle className="mr-2 h-5 w-5 text-green-500"/>
-                                <span>10,000 API requests per month</span>
+                                <span><span className="font-semibold">10,000</span> API requests per month</span>
                             </li>
                             <li className="flex items-center">
                                 <CheckCircle className="mr-2 h-5 w-5 text-green-500"/>
@@ -135,10 +117,12 @@ export default async function PlansComparison({initialSubscription, customerData
                         </ul>
                     </CardContent>
                     <CardFooter>
-                        {subscription.type === "pro" ? (
+                        {subscription?.subscription_status === "active" ? (
                             <Button disabled variant="outline" className="w-full">Current Plan</Button>
                         ) : (
-                            <Button onClick={()=>handleUpgrade(billingCycle === "yearly" ? pro_yearly_id: pro_monthly_id)} className="w-full">Upgrade Now</Button>
+                            <Button
+                                onClick={() => handleUpgrade(billingCycle === "yearly" ? pro_yearly_id : pro_monthly_id, customerData.email)}
+                                className="w-full">Upgrade Now</Button>
                         )}
                     </CardFooter>
                 </Card>
