@@ -30,6 +30,27 @@ export type Database = {
         }
         Relationships: []
       }
+      customers: {
+        Row: {
+          created_at: string
+          customer_id: string
+          email: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          email: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          email?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       endpoints: {
         Row: {
           cache_enabled: boolean
@@ -314,23 +335,73 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          billing_cycle: string
+          created_at: string
+          customer_id: string
+          next_billed_at: string
+          price_id: string | null
+          product_id: string | null
+          scheduled_change: string | null
+          subscription_id: string
+          subscription_status: string
+          updated_at: string
+        }
+        Insert: {
+          billing_cycle: string
+          created_at?: string
+          customer_id: string
+          next_billed_at: string
+          price_id?: string | null
+          product_id?: string | null
+          scheduled_change?: string | null
+          subscription_id: string
+          subscription_status: string
+          updated_at?: string
+        }
+        Update: {
+          billing_cycle?: string
+          created_at?: string
+          customer_id?: string
+          next_billed_at?: string
+          price_id?: string | null
+          product_id?: string | null
+          scheduled_change?: string | null
+          subscription_id?: string
+          subscription_status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["customer_id"]
+          },
+        ]
+      }
       usages: {
         Row: {
           billing_started_at: string
           calls_count: number
           id: number
+          updated_at: string | null
           user_id: string
         }
         Insert: {
           billing_started_at?: string
           calls_count?: number
           id?: number
+          updated_at?: string | null
           user_id: string
         }
         Update: {
           billing_started_at?: string
           calls_count?: number
           id?: number
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -340,6 +411,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_subscription: {
+        Args: { p_user_id: string }
+        Returns: boolean
+      }
       get_route_data: {
         Args: {
           p_service_name: string

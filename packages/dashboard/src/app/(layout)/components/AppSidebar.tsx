@@ -1,7 +1,7 @@
 "use client"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { AlertCircleIcon, Book, Globe, KeyRound, Layers } from 'lucide-react'
+import {AlertCircleIcon, Book, CreditCard, Globe, KeyRound, Layers} from 'lucide-react'
 import Image from "next/image"
 import {
     Sidebar,
@@ -102,6 +102,15 @@ export function AppSidebar() {
                                     </Link>
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
+                            {FEATURES.SIDEBAR.SHOW_USAGE &&  <SidebarMenuItem>
+                                <SidebarMenuButton asChild isActive={isActive("/subscription")}>
+                                    <Link href="/subscription">
+                                        <CreditCard className="mr-2 h-4 w-4" />
+                                        Subscription
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>}
+
                             <GiveFeedbackLink />
                         </SidebarMenu>
                     </SidebarGroupContent>

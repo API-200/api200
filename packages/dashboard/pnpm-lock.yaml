@@ -17,6 +17,12 @@ importers:
       '@monaco-editor/react':
         specifier: ^4.7.0
         version: 4.7.0(monaco-editor@0.52.2)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@paddle/paddle-js':
+        specifier: ^1.4.1
+        version: 1.4.1
+      '@paddle/paddle-node-sdk':
+        specifier: ^2.7.1
+        version: 2.7.1
       '@radix-ui/react-accordion':
         specifier: ^1.2.3
         version: 1.2.3(@types/react-dom@19.0.4(@types/react@19.0.12))(@types/react@19.0.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -747,6 +753,13 @@ packages:
     engines: {node: '>=14'}
     peerDependencies:
       '@opentelemetry/api': ^1.1.0
+
+  '@paddle/paddle-js@1.4.1':
+    resolution: {integrity: sha512-GKuXVnUAIGq4H1AxrPRRMZXl+pTSGiKMStpRlvF6+dv03BwhkqbyHJJZ39e6bMquVbYSa33/9cu6fuW8pie8aQ==}
+
+  '@paddle/paddle-node-sdk@2.7.1':
+    resolution: {integrity: sha512-7XWmXzm7VeH/aU/uyPrHZCbWCt/AUvVsWVZsj1XCNjXhNXdzgoA6kbGe97KUJcoELftge+DAMGBNWxv0kT1opQ==}
+    engines: {node: '>=18'}
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -4817,6 +4830,10 @@ snapshots:
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/core': 1.30.1(@opentelemetry/api@1.9.0)
+
+  '@paddle/paddle-js@1.4.1': {}
+
+  '@paddle/paddle-node-sdk@2.7.1': {}
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
