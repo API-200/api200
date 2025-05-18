@@ -1,14 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {Badge} from "@/components/ui/badge";
+import {Progress} from "@/components/ui/progress";
+import {Button} from "@/components/ui/button";
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Tables} from "@/utils/supabase/database.types";
 import {PLANS} from "@/utils/constants";
 import {format} from "date-fns";
-import {pro_monthly_id, pro_yearly_id, usePaddle} from "@/hooks/usePaddle";
+import {pro_monthly_id, usePaddle} from "@/hooks/usePaddle";
 
 type Props = {
     subscription: (Tables<'subscriptions'> & Tables<'customers'>) | null;
@@ -18,8 +17,8 @@ type Props = {
     }
 }
 
-export default function SubscriptionCard({ subscription, usages, customerData }: Props) {
-    const {paddle, error, handleUpgrade} = usePaddle();
+export default function SubscriptionCard({subscription, usages, customerData}: Props) {
+    const {paddle, handleUpgrade} = usePaddle();
 
     const isPro = subscription?.subscription_status === "active";
     const maxRequestsPerMonth = isPro ? PLANS.PRO.REQUESTS_PER_MONTH : PLANS.BASIC.REQUESTS_PER_MONTH
@@ -30,7 +29,7 @@ export default function SubscriptionCard({ subscription, usages, customerData }:
     const handleCancel = async () => {
         try {
             paddle?.Retain.initCancellationFlow({
-                subscriptionId: subscription?.subscription_id!,
+                subscriptionId: subscription?.subscription_id as string,
             })
         } catch (error) {
             console.error("Error canceling subscription:", error);
@@ -74,7 +73,7 @@ export default function SubscriptionCard({ subscription, usages, customerData }:
                         {usages} / {maxRequestsPerMonth}
                     </div>
                 </div>
-                <Progress value={usagePercentage} className="h-2" />
+                <Progress value={usagePercentage} className="h-2"/>
             </CardContent>
         </Card>
     );

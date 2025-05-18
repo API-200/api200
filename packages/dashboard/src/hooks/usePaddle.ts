@@ -1,6 +1,7 @@
 import { env } from "next-runtime-env";
 import {useCallback, useEffect, useState } from "react";
 import {initializePaddle, Paddle} from "@paddle/paddle-js";
+import { captureException } from "@sentry/nextjs"
 
 
 const environment = env('NEXT_PUBLIC_PADDLE_ENV') as "sandbox";
@@ -24,6 +25,7 @@ export function usePaddle() {
                 }
             })
             .catch((err) => {
+                captureException(err);
                 if (isMounted) {
                     setError(err as Error);
                     console.error('Failed to initialize Paddle:', err);
@@ -61,6 +63,7 @@ export function usePaddle() {
                 }
             })
         } catch (error) {
+            captureException(error);
             console.error("Error upgrading subscription:", error);
         }
     };

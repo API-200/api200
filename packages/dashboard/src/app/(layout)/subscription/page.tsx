@@ -7,7 +7,7 @@ import { getSubscription } from "@/utils/paddle/getSubscription";
 export default async function SubscriptionPage() {
     const supabase = await createClient()
     const {data: {user}} = await supabase.auth.getUser()
-    const { data } = await supabase.from('usages').select().eq('user_id',user?.id!).maybeSingle()
+    const { data } = await supabase.from('usages').select().eq('user_id',user?.id as string).maybeSingle()
     const usages = data?.calls_count
     const subscription = await getSubscription()
 
@@ -24,14 +24,14 @@ export default async function SubscriptionPage() {
                 <div>
                     <h2 className="text-xl font-semibold mb-4">Current Subscription</h2>
                     <SubscriptionCard usages={usages} subscription={subscription} customerData={{
-                        email: user?.email!,
+                        email: user?.email as string,
                     }} />
                 </div>
 
                 <div>
                     <h2 className="text-xl font-semibold mb-4">Plans Comparison</h2>
                     <PlansComparison subscription={subscription} customerData={{
-                        email: user?.email!,
+                        email: user?.email as string,
                     }} />
                 </div>
             </div>

@@ -18,7 +18,7 @@ type Props = {
 export default function PlansComparison({subscription, customerData}: Props) {
 
     const [billingCycle, setBillingCycle] = useState("monthly");
-    const {paddle, error, handleUpgrade} = usePaddle();
+    const {handleUpgrade} = usePaddle();
 
 
     // Toggle billing cycle
