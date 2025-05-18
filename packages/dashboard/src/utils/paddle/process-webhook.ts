@@ -34,6 +34,7 @@ export class ProcessWebhook {
         scheduled_change: eventData.data.scheduledChange?.effectiveAt,
         customer_id: eventData.data.customerId,
         next_billed_at: eventData.data.nextBilledAt,
+        billing_cycle: eventData.data.billingCycle.interval
       })
       .select();
 
