@@ -337,8 +337,10 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          billing_cycle: string
           created_at: string
           customer_id: string
+          next_billed_at: string
           price_id: string | null
           product_id: string | null
           scheduled_change: string | null
@@ -347,8 +349,10 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          billing_cycle: string
           created_at?: string
           customer_id: string
+          next_billed_at: string
           price_id?: string | null
           product_id?: string | null
           scheduled_change?: string | null
@@ -357,8 +361,10 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          billing_cycle?: string
           created_at?: string
           customer_id?: string
+          next_billed_at?: string
           price_id?: string | null
           product_id?: string | null
           scheduled_change?: string | null
