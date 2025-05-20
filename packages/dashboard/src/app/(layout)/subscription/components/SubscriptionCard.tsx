@@ -23,7 +23,7 @@ export default function SubscriptionCard({subscription, usages, customerData}: P
     const isPro = subscription?.subscription_status === "active";
     const maxRequestsPerMonth = isPro ? PLANS.PRO.REQUESTS_PER_MONTH : PLANS.BASIC.REQUESTS_PER_MONTH
 
-    const usagePercentage = Math.min((usages / maxRequestsPerMonth) * 100, 100)
+    const usagePercentage = Math.min(((usages || 0) / maxRequestsPerMonth) * 100, 100)
 
     // Handle cancel
     const handleCancel = async () => {
@@ -70,7 +70,7 @@ export default function SubscriptionCard({subscription, usages, customerData}: P
                 <div className="mb-2 flex justify-between items-center">
                     <div className="text-sm text-gray-500">API Requests</div>
                     <div className="text-sm font-medium">
-                        {usages} / {maxRequestsPerMonth}
+                        {usages || 0} / {maxRequestsPerMonth}
                     </div>
                 </div>
                 <Progress value={usagePercentage} className="h-2"/>
