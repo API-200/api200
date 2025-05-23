@@ -1,0 +1,42 @@
+{
+  "type": "module",
+  "name": "api200-sdk-generator",
+  "version": "1.0.0",
+  "description": "CLI tool to generate TypeScript SDK for API 200 services",
+  "main": "dist/index.js",
+  "bin": {
+    "api200-generate-sdk": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts",
+    "dev": "tsup src/index.ts --format esm --watch",
+    "start": "node dist/index.js",
+    "prepare": "pnpm run build",
+  },
+  "keywords": [
+    "api200",
+    "sdk",
+    "generator",
+    "typescript",
+    "cli"
+  ],
+  "author": "Maksym Budnyk",
+  "dependencies": {
+    "commander": "^11.0.0",
+    "fs-extra": "^11.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.14.1",
+    "tsup": "^8.4.0",
+    "typescript": "^5.3.3"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
