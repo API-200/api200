@@ -29,7 +29,7 @@ export const ApiExample: FC<ApiExampleProps> = ({ url, method }) => {
 
     const handleCopyInstallCommand = async () => {
         try {
-            await navigator.clipboard.writeText("npx api200-generate-sdk -t your_token_here")
+            await navigator.clipboard.writeText("npx api200-generate-sdk -t YOUR_API_TOKEN")
             setIsSdkCopied(true)
             setTimeout(() => setIsSdkCopied(false), 2000)
         } catch (err) {
