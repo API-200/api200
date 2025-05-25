@@ -39,7 +39,6 @@ export async function generateTypesFile(services: Service[], outputDir: string) 
         service.endpoints.forEach(endpoint => {
             const methodName = generateMethodName(endpoint.method, endpoint.name);
 
-            // Parameters interface
             const paramTypes: string[] = [];
             if (endpoint.schema?.parameters) {
                 endpoint.schema.parameters.forEach(param => {
@@ -58,7 +57,6 @@ export async function generateTypesFile(services: Service[], outputDir: string) 
                 });
             }
 
-            // Request body type
             if (['POST', 'PUT', 'PATCH'].includes(endpoint.method.toUpperCase())) {
                 if (endpoint.schema?.requestBody?.content) {
                     const jsonContent = endpoint.schema.requestBody.content['application/json'];
@@ -79,19 +77,22 @@ export async function generateTypesFile(services: Service[], outputDir: string) 
         });
     });
 
-    const typesContent = `// Auto-generated types for API200 SDK
-${typeDefinitions.join('\n\n')}
+    const typesContent = `${typeDefinitions.join('\n\n')}
 
-export interface ApiResponse<T = any> {
-    data: T;
-    status: number;
-    statusText: string;
+export interface API200Config {
+    baseUrl: string;
+    userKey: string;
 }
 
-export interface ApiError {
+export interface API200Response<T = any> {
+    data: T | null;
+    error: API200Error | null;
+}
+
+export interface API200Error {
     message: string;
     status?: number;
-    statusText?: string;
+    details?: any;
 }
 `;
 

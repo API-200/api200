@@ -11,7 +11,6 @@ export async function generateSDK(userKey: string, baseApiUrl: string, outputDir
 
     const baseUrl = baseApiUrl.replace(/\/api$/, "/");
 
-    // Fetch services data
     const response = await fetch(`${baseUrl}/user/mcp-services`, {
         headers: {
             "x-api-key": userKey
@@ -25,31 +24,28 @@ export async function generateSDK(userKey: string, baseApiUrl: string, outputDir
     const services: Service[] = await response.json();
     console.log(`📡 Found ${services.length} services`);
 
-    // Create output directory
     await fs.ensureDir(outputDir);
 
-    // Generate all files
     await generateTypesFile(services, outputDir);
-    await generateApi200ClientFile(outputDir);
+    await generateApi200ClientFile(services, outputDir);
 
-    // Generate service files
     for (const service of services) {
         await generateServiceFile(service, outputDir);
     }
 
-    // Generate main index file
-    await generateIndexFile(services, outputDir);
+    await generateIndexFile(services, outputDir, userKey);
 
     console.log('✅ SDK generated successfully!');
     console.log(`📁 Output directory: ${outputDir}`);
     console.log('\n📖 Usage example:');
     console.log('```typescript');
-    console.log(`import { createAPI200Client, api200 } from '${outputDir.startsWith('./src') ? outputDir.replace('./src/', './') : outputDir}';`);
+    console.log(`import api200 from '${outputDir.startsWith('./src') ? outputDir.replace('./src/', './') : outputDir}';`);
     console.log('');
-    console.log('// Initialize the client with your credentials');
-    console.log("createAPI200Client('https://eu.api200.co/api', 'your-api-key');");
-    console.log('');
-    console.log('// Use the API');
-    console.log('const result = await api200.users.getUserById.get({ id: "123" });');
+    console.log('const { data, error } = await api200.users.getUserById.get({ id: "123" });');
+    console.log('if (error) {');
+    console.log('  console.error(error.message);');
+    console.log('} else {');
+    console.log('  console.log(data);');
+    console.log('}');
     console.log('```');
 }

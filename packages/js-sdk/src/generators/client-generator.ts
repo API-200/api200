@@ -1,34 +1,41 @@
 // generators/client-generator.ts
 import fs from 'fs-extra';
 import path from 'path';
+import { Service } from '../utils/types';
+import { toCamelCase, toPascalCase } from '../utils/string-utils';
 
-export async function generateApi200ClientFile(outputDir: string) {
-    const clientContent = `// Auto-generated API200 client
-import { ApiResponse, ApiError } from './types';
+export async function generateApi200ClientFile(services: Service[], outputDir: string) {
+    const serviceImports = services.map(service => {
+        const serviceName = toCamelCase(service.name);
+        return `import { create${toPascalCase(service.name)}Service } from './${service.name}';`;
+    }).join('\n');
 
-let config: { baseUrl: string; userKey: string } | null = null;
+    const apiObjectProperties = services.map(service => {
+        const serviceName = toCamelCase(service.name);
+        return `    ${serviceName}: create${toPascalCase(service.name)}Service(config)`;
+    }).join(',\n');
 
-export function createAPI200Client(baseUrl: string, userKey: string) {
-  config = { baseUrl, userKey };
+    const clientContent = `import { API200Config } from './types';
+${serviceImports}
+
+
+export interface API200Client {
+${services.map(service => {
+        const serviceName = toCamelCase(service.name);
+        return `  ${serviceName}: ReturnType<typeof create${toPascalCase(service.name)}Service>;`;
+    }).join('\n')}
 }
 
-export async function makeRequest(serviceName: string, endpointPath: string, method: string, params: any = {}): Promise<ApiResponse> {
-  if (!config) {
-    throw new Error('API200 client not initialized. Call createAPI200Client(baseUrl, userKey) first.');
-  }
-
+export async function makeRequest(config: API200Config, serviceName: string, endpointPath: string, method: string, params: any = {}): Promise<{ data: any; error: any }> {
   try {
-    // Handle path parameters
     let processedPath = endpointPath;
     const queryParams: string[] = [];
     
     if (params) {
-      // Replace path parameters
       Object.keys(params).forEach(key => {
         if (processedPath.includes(\`{\${key}}\`)) {
           processedPath = processedPath.replace(\`{\${key}}\`, params[key]);
         } else if (key !== 'requestBody') {
-          // Add as query parameter
           queryParams.push(\`\${key}=\${encodeURIComponent(params[key])}\`);
         }
       });
@@ -52,18 +59,38 @@ export async function makeRequest(serviceName: string, endpointPath: string, met
     const response = await fetch(fullUrl, requestOptions);
     const data = await response.json();
 
+    if (!response.ok) {
+      return {
+        data: null,
+        error: {
+          message: data.error || \`HTTP \${response.status}: \${response.statusText}\`,
+          status: response.status,
+          details: data.details
+        }
+      };
+    }
+
     return {
       data,
-      status: response.status,
-      statusText: response.statusText
+      error: null
     };
   } catch (error) {
-    throw {
-      message: error instanceof Error ? error.message : String(error),
-      status: 0,
-      statusText: 'Network Error'
-    } as ApiError;
+    return {
+      data: null,
+      error: {
+        message: error instanceof Error ? error.message : String(error),
+        status: 0
+      }
+    };
   }
+}
+
+export function createAPI200Client(userKey: string, baseUrl: string = 'https://app.api200.co/api'): API200Client {
+  const config: API200Config = { baseUrl, userKey };
+  
+  return {
+${apiObjectProperties}
+  };
 }
 `;
 
