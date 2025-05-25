@@ -1,28 +1,83 @@
-
 export type Method = "GET" | "POST" | "PUT" | "DELETE" | "PATCH"
 export type Language = "js" | "python" | "curl" | "php" | "go" | "rust" | "java" | "csharp"
 
+// Helper function to generate SDK method name (matching your SDK generator logic)
+function generateSDKMethodName(method: string, path: string): string {
+    return `${method.toLowerCase()}_${path.replace(/^\//, '').replace(/\//g, '_')}`.replace(/{([^}]+)}/g, 'by_$1');
+}
 
+// Helper function to convert service name to camelCase (matching your SDK generator logic)
+function toCamelCase(str: string): string {
+    return str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+}
+
+// Helper function to extract service name and endpoint path from URL
+function parseApiUrl(url: string): { serviceName: string; endpointPath: string } {
+    // Extract from URL like: https://eu.api200.co/api/users/profile/{id}
+    const urlParts = url.split('/api/');
+    if (urlParts.length < 2) {
+        return { serviceName: 'service', endpointPath: '/endpoint' };
+    }
+
+    const pathParts = urlParts[1].split('/');
+    const serviceName = pathParts[0] || 'service';
+    const endpointPath = '/' + pathParts.slice(1).join('/');
+
+    return { serviceName, endpointPath };
+}
+
+// Helper function to generate parameter example based on URL path
+function generateSDKParams(url: string, method: Method): string {
+    const pathParams = url.match(/{([^}]+)}/g);
+    const hasRequestBody = ['POST', 'PUT', 'PATCH'].includes(method);
+
+    if (!pathParams && !hasRequestBody) {
+        return '';
+    }
+
+    const params: string[] = [];
+
+    // Add path parameters
+    if (pathParams) {
+        pathParams.forEach(param => {
+            const paramName = param.replace(/[{}]/g, '');
+            params.push(`          ${paramName}: "your_${paramName}_value"`);
+        });
+    }
+
+    // Add request body for POST, PUT, PATCH
+    if (hasRequestBody) {
+        params.push(`  requestBody: {
+    // Your request data here
+    name: "example",
+    value: "data"
+  }`);
+    }
+
+    return params.length > 0 ? `{\n${params.join(',\n')}\n     }` : '';
+}
 
 export const getCodeExample = (language: Language, url: string, method: Method): string => {
     const headers = '{"x-api-key": "YOUR_API_KEY"}'
 
-    const examples = {
-        js: `const fetchData = async () => {
-  try {
-    const response = await fetch("${url}", {
-      method: "${method}",
-      headers: ${headers}
-    });
-    const data = await response.json();
-    console.log(data);
-  } catch (error) {
-    console.error('Error:', error);
-  }
+    // For JavaScript, show SDK usage instead of fetch
+    if (language === 'js') {
+        const { serviceName, endpointPath } = parseApiUrl(url);
+        const camelCaseServiceName = toCamelCase(serviceName);
+        const methodName = generateSDKMethodName(method, endpointPath);
+        const params = generateSDKParams(url, method);
+
+        return `
+import api200 from '@lib/api200';
+
+const fetchData = async () => {
+     const { data, error } = await api200.${camelCaseServiceName}.${methodName}.${method.toLowerCase()}(${params ? params : ''});
 };
 
-fetchData();`,
+fetchData();`;
+    }
 
+    const examples = {
         python: `import requests
 
 url = "${url}"
@@ -138,5 +193,5 @@ class Program
 }`
     }
 
-    return examples[language] || examples.js
+    return examples[language]
 }
