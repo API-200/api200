@@ -85,7 +85,7 @@ export async function makeRequest(config: API200Config, serviceName: string, end
   }
 }
 
-export function createAPI200Client(userKey: string, baseUrl: string = 'https://app.api200.co/api'): API200Client {
+export function createAPI200Client(userKey: string, baseUrl: string = 'https://eu.api200.co/api'): API200Client {
   const config: API200Config = { baseUrl, userKey };
   
   return {
