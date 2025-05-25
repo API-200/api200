@@ -1,223 +1,131 @@
 # API200 SDK Generator
 
-[![npm version](https://badge.fury.io/js/api200-sdk-generator.svg)](https://badge.fury.io/js/api200-sdk-generator)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+A TypeScript SDK generator that automatically creates a fully-typed client library for your API200 services. Generate type-safe API clients with zero configuration and full IDE support.
 
-A powerful CLI tool that automatically generates a TypeScript SDK for your [API 200](https://api200.co) services. Transform your API endpoints into a fully-typed, easy-to-use SDK with a single command.
+## Features
 
-## 🚀 Features
+- **Automatic Type Generation**: Creates TypeScript interfaces from your API schemas
+- **Full Type Safety**: Compile-time error checking for API calls
+- **Zero Configuration**: Works out of the box with sensible defaults
+- **Path & Query Parameters**: Handles both path variables and query strings
+- **Request Body Support**: Type-safe request body handling for POST/PUT/PATCH
+- **Error Handling**: Structured error responses with status codes
+- **IDE Support**: Full IntelliSense and autocomplete support
 
-- **🔧 Zero Configuration** - Just provide your API token and go
-- **📝 Full TypeScript Support** - Complete type safety with IntelliSense
-- **🎯 Intuitive API** - Clean, predictable method naming
-- **⚡ Fast Generation** - Generates SDK in seconds
-- **🔄 Automatic Updates** - Re-run to sync with API changes
-- **📦 No Dependencies** - Generated code has zero runtime dependencies
+## Prerequisites
 
-## 📥 Installation
+1. **Register with API200**: Sign up at [API200](https://api200.co) and set up your API proxy platform
+2. **Import/Create Services**: Add your API services to the API200 platform
+3. **Get API Token**: Obtain your user token from the API200 dashboard
 
-### Global Installation
-```bash
-npm install -g api200-sdk-generator
-```
+## Installation
 
-### One-time Usage (Recommended)
-```bash
-npx api200-generate-sdk -t your_api_token
-```
-
-## 🛠️ Usage
-
-### Basic Usage
-```bash
-npx api200-generate-sdk --token YOUR_API_TOKEN
-```
-
-### Custom Output Directory
-```bash
-npx api200-generate-sdk -t YOUR_API_TOKEN -o ./src/api
-```
-
-### Custom Base URL
-```bash
-npx api200-generate-sdk -t YOUR_API_TOKEN -u https://custom.api200.co/api
-```
-
-### All Options
-```bash
-api200-generate-sdk [options]
-
-Options:
-  -t, --token <token>     API200 user token (required)
-  -u, --base-url <url>    Base API URL (default: "https://eu.api200.co/api")
-  -o, --output <path>     Output directory (default: "./lib/api200")
-  -h, --help              Display help for command
-```
-
-## 📁 Generated Structure
-
-The generator creates a clean, organized SDK structure:
-
-```
-lib/api200/
-├── index.ts          # Main SDK export
-├── types.ts          # TypeScript interfaces
-├── users.ts          # Users service methods
-├── orders.ts         # Orders service methods
-└── payments.ts       # Payments service methods
-```
-
-## 💻 Usage Examples
-
-### Basic Import and Usage
-```typescript
-import { api200 } from './lib/api200';
-
-// GET request with path parameter
-const user = await api200.users.getUserById.get({ id: "123" });
-console.log(user.data);
-
-// GET request with query parameters
-const users = await api200.users.getUsers.get({ 
-  page: 1, 
-  limit: 10,
-  status: "active" 
-});
-
-// POST request with body
-const newUser = await api200.users.createUser.post({
-  requestBody: {
-    name: "John Doe",
-    email: "john@example.com"
-  }
-});
-```
-
-### Error Handling
-```typescript
-import { api200 } from './lib/api200';
-import type { ApiError } from './lib/api200/types';
-
-try {
-  const result = await api200.users.getUserById.get({ id: "123" });
-  console.log('Success:', result.data);
-} catch (error) {
-  const apiError = error as ApiError;
-  console.error('Error:', apiError.message);
-  console.error('Status:', apiError.status);
-}
-```
-
-### Type Safety
-```typescript
-import { api200 } from './lib/api200';
-import type { GetUsersByIdParams, PostUsersParams } from './lib/api200/types';
-
-// Fully typed parameters
-const params: GetUsersByIdParams = { id: "123" };
-const user = await api200.users.getUserById.get(params);
-
-// TypeScript will catch type errors
-const createParams: PostUsersParams = {
-  requestBody: {
-    name: "John",
-    email: "john@example.com",
-    // age: "30" // ❌ TypeScript error if age should be number
-    age: 30 // ✅ Correct type
-  }
-};
-```
-
-## 🔄 Updating Your SDK
-
-When your API changes, simply re-run the generator to update your SDK:
+Generate your SDK using npx (no installation required):
 
 ```bash
 npx api200-generate-sdk -t YOUR_API_TOKEN
 ```
 
-This will overwrite the existing SDK files with the latest API definitions.
+## Command Options
 
-## 🌟 Method Naming Convention
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--token` | `-t` | **Required.** Your API200 user token ||
+| `--base-url` | `-u` | Base API URL | `https://eu.api200.co/api` |
+| `--output` | `-o` | Output directory | `./src/lib/api200` or `./lib/api200` |
 
-The generator creates clean, predictable method names:
-
-| API Endpoint | Generated Method |
-|--------------|------------------|
-| `GET /users` | `api200.users.getUsers.get()` |
-| `GET /users/{id}` | `api200.users.getUsersById.get()` |
-| `POST /users` | `api200.users.postUsers.post()` |
-| `PUT /users/{id}` | `api200.users.putUsersById.put()` |
-| `DELETE /users/{id}` | `api200.users.deleteUsersById.delete()` |
-
-## 🔧 Configuration
-
-### Environment Variables
-You can also use environment variables instead of command-line options:
+### Examples
 
 ```bash
-export API200_TOKEN=your_token_here
-export API200_BASE_URL=https://eu.api200.co/api
-export API200_OUTPUT=./lib/api200
+# Basic usage
+npx api200-generate-sdk -t your_token_here
 
-npx api200-generate-sdk
+# Custom output directory
+npx api200-generate-sdk -t your_token_here -o ./src/api
+
+# Different API region
+npx api200-generate-sdk -t your_token_here -u https://us.api200.co/api
 ```
 
-### Project Integration
-Add generation to your package.json scripts:
+## Generated Structure
 
-```json
-{
-  "scripts": {
-    "generate-sdk": "api200-generate-sdk -t $API200_TOKEN",
-    "build": "npm run generate-sdk && tsc",
-    "dev": "npm run generate-sdk && npm run build -- --watch"
-  }
+The SDK generator creates the following file structure:
+
+```
+lib/api200/
+├── index.ts          # Main export file with configured client
+├── api200.ts         # Core client and request handling
+├── types.ts          # TypeScript type definitions
+└── [service-name].ts # Individual service files
+```
+
+## Usage Example
+
+### Usage
+
+```typescript
+import api200 from './lib/api200';
+
+// GET request with path parameter
+const { data, error } = await api200.users.getUserById.get({ 
+  id: "123" 
+});
+
+if (error) {
+  console.error('API Error:', error.message);
+} else {
+  console.log('User data:', data);
 }
 ```
 
-## 🐛 Troubleshooting
+### Method Naming Convention
 
-### Common Issues
+Methods are generated using the pattern: `[httpMethod][EndpointPath]`
 
-**"Failed to fetch services" Error**
-- Verify your API token is correct
-- Check if the base URL is accessible
-- Ensure you have internet connectivity
+Examples:
+- `GET /users/{id}` → `getUserById.get()`
+- `POST /users` → `createUser.post()`
+- `PUT /users/{id}` → `updateUserById.put()`
+- `DELETE /orders/{orderId}` → `deleteOrderByOrderId.delete()`
 
-**TypeScript Compilation Errors**
-- Make sure you have TypeScript installed: `npm install -D typescript`
-- Check that your tsconfig.json includes the generated files
+## Error Handling
 
-**Permission Errors**
-- Ensure you have write permissions to the output directory
-- Try running with elevated permissions if needed
+All API methods return a consistent response structure:
 
-### Getting Help
-- Check the [API 200](https://api200.co) documentation
-- Open an issue on GitHub
-- Contact support through the API 200 website
+```typescript
+interface API200Response<T> {
+  data: T | null;
+  error: API200Error | null;
+}
 
-## 📄 License
+interface API200Error {
+  message: string;
+  status?: number;
+  details?: any;
+}
+```
 
-MIT License - see the [LICENSE](LICENSE) file for details.
+## Types
 
-## 🔗 Links
+The generator creates comprehensive TypeScript types for all your APIs:
 
-- **[API 200 Website](https://api200.co)** - Main service website
-- **[API Documentation](https://api200.co/docs)** - Full API documentation
-- **[GitHub Repository](https://github.com/your-org/api200-sdk-generator)** - Source code and issues
+## Updating Your SDK
 
-## 🤝 Contributing
+When you add new services or modify existing ones in API200:
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+1. **Regenerate the SDK**:
+   ```bash
+   npx api200-generate-sdk -t YOUR_API_TOKEN
+   ```
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. **The generator will**:
+    - Fetch the latest service definitions
+    - Update all type definitions
+    - Add new service methods
+    - Preserve your existing configuration
 
----
+3. **No breaking changes**: Existing code continues to work while new features become available
 
-**Made with ❤️ for [API 200](https://api200.co) developers**
+## Support
+
+- [GitHub](https://github.com/API-200/api200/discussions)
