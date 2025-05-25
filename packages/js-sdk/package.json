@@ -11,7 +11,7 @@
     "build": "tsup src/index.ts --format esm --dts",
     "dev": "tsup src/index.ts --format esm --watch",
     "start": "node dist/index.js",
-    "prepare": "pnpm run build",
+    "prepare": "pnpm run build"
   },
   "keywords": [
     "api200",
