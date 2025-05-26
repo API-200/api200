@@ -29,5 +29,28 @@ export const createUserRouter = () => {
         ctx.body = mcpServices.data;
     });
 
+    router.get('/all-services', async (ctx) => {
+        const keyData = await validateApiKey(ctx);
+        if (!keyData) {
+            ctx.status = 401;
+            ctx.body = { error: 'Unauthorized' };
+            return;
+        }
+
+        const services = await supabase
+            .from('services')
+            .select('*, endpoints(*)')
+            .eq('user_id', keyData.user_id);
+
+        if (services.error) {
+            ctx.status = 500;
+            ctx.body = { error: 'Failed to fetch services' };
+            return;
+        }
+
+        ctx.status = 200;
+        ctx.body = services.data;
+    });
+
     return router;
 }

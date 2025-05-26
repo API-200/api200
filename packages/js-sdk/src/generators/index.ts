@@ -11,7 +11,7 @@ export async function generateSDK(userKey: string, baseApiUrl: string, outputDir
 
     const baseUrl = baseApiUrl.replace(/\/api$/, "/");
 
-    const response = await fetch(`${baseUrl}/user/mcp-services`, {
+    const response = await fetch(`${baseUrl}/user/all-services`, {
         headers: {
             "x-api-key": userKey
         }
