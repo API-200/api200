@@ -64,7 +64,7 @@ export const ApiExample: FC<ApiExampleProps> = ({ url, method }) => {
                         </div>
                         <div className="bg-white rounded border border-blue-200 p-3">
                             <code className="text-sm text-blue-800 font-mono">
-                                npx api200-generate-sdk -t YOUR_API_TOKEN
+                                npx api200-sdk-generator -t YOUR_API_TOKEN
                             </code>
                         </div>
                     </CardContent>
